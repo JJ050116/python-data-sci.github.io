@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Science Visualizer · Interactive Diagram (SVG + HTML Overlay)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Fira+Code:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       Skill Theme: Data Science Visualizer
+       Default: Clean Light Theme (Matching Book Design System)
+       Toggleable: GitHub Dark / High-Tech Cyber Deck
+       ========================================================================== */
+    :root {
+      /* Base Theme: Light Mode (Default) */
+      --bg-page: #f6f8fa;
+      --bg-grid-line: rgba(15, 23, 42, 0.045);
+      --bg-widget: #ffffff;
+      --bg-topbar: #f8fafc;
+      --bg-viewport: #fafbfc;
+      --bg-bottom-grid: #f8fafc;
+      
+      --ink: #0f172a;
+      --ink-2: #ffffff;
+      --ink-3: #f1f5f9;
+      
+      --line: #e2e8f0;
+      --line-strong: #cbd5e1;
+      --line-active: #94a3b8;
+      --conn-track: #e2e8f0;
+      
+      /* Typography Colors */
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      
+      /* Phase Colors (High contrast & vibrant for Light Mode) */
+      --gh-blue: #0284c7;     /* Sky 600 */
+      --gh-purple: #7c3aed;   /* Purple 600 */
+      --gh-green: #16a34a;    /* Green 600 */
+      --gh-orange: #ea580c;   /* Orange 600 */
+      --gh-pink: #db2777;     /* Pink 600 */
+      --gh-danger: #e11d48;   /* Rose 600 */
+
+      /* Node card styling in Light */
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --card-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --card-title: #0f172a;
+      --card-sub: #475569;
+
+      /* Stepper / Controls in Light */
+      --ctrl-bg: #f1f5f9;
+      --ctrl-btn-bg: #ffffff;
+      --ctrl-btn-text: #334155;
+      --ctrl-btn-border: #cbd5e1;
+      --ctrl-btn-hover-bg: #0284c7;
+      --ctrl-btn-hover-text: #ffffff;
+
+      /* Scenario tabs in Light */
+      --tab-bg: #e2e8f0;
+      --tab-pill-text: #475569;
+      --tab-pill-active-bg: #ffffff;
+      --tab-pill-active-text: #0284c7;
+      --tab-pill-active-border: #cbd5e1;
+
+      /* Terminal in Light (Clean dark slate mini-console) */
+      --term-bg: #0f172a;
+      --term-topbar: #1e293b;
+      --term-border: #334155;
+      --term-text: #86efac;
+      --term-text-danger: #fda4af;
+
+      /* Code Window in Light (macOS Light Editor) */
+      --code-window-bg: #ffffff;
+      --code-titlebar-bg: #f8fafc;
+      --code-titlebar-border: #e2e8f0;
+      --code-titlebar-text: #475569;
+      --code-line-hover: #f1f5f9;
+      --code-line-active: #eff6ff;
+      --code-line-active-danger: #fff1f2;
+      --code-lineno: #94a3b8;
+
+      /* Code Syntax Tokens (GitHub Light / VS Code Light) */
+      --tok-comment: #64748b;
+      --tok-keyword: #7c3aed;
+      --tok-string: #0d766b;
+      --tok-number: #c2410c;
+      --tok-bool: #b45309;
+      --tok-fn: #0284c7;
+      --tok-op: #be185d;
+      --tok-ident: #0f172a;
+      --tok-punct: #64748b;
+
+      /* Info Panel in Light */
+      --info-bg: #ffffff;
+      --info-border: #e2e8f0;
+      --info-title: #0f172a;
+      --info-desc: #334155;
+      --info-code-bg: #f1f5f9;
+      --info-code-text: #0284c7;
+      --info-code-border: #e2e8f0;
+      --info-tip-bg: #f0fdf4;
+      --info-tip-border: #16a34a;
+      --info-tip-text: #166534;
+      --info-tip-danger-bg: #fef2f2;
+      --info-tip-danger-border: #e11d48;
+      --info-tip-danger-text: #991b1b;
+      --dot-inactive: #cbd5e1;
+
+      /* Particle */
+      --particle-fill: #0284c7;
+      --particle-stroke: #ffffff;
+
+      --font-sans: 'Sarabun', -apple-system, sans-serif;
+      --font-code: 'Fira Code', monospace;
+      --font-display: 'Chakra Petch', sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0a0e1a;
+      --bg-grid-line: rgba(88, 166, 255, 0.04);
+      --bg-widget: #0d1424;
+      --bg-topbar: #0d1527;
+      --bg-viewport: #0a0e1a;
+      --bg-bottom-grid: #0d1424;
+      
+      --ink: #0a0e1a;
+      --ink-2: #0d1424;
+      --ink-3: #111a30;
+      
+      --line: #1e2a45;
+      --line-strong: #2a3a5e;
+      --line-active: #384d75;
+      --conn-track: #1e2a45;
+      
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim: #484f58;
+      
+      --gh-blue: #58a6ff;
+      --gh-purple: #bc8cff;
+      --gh-green: #3fb950;
+      --gh-orange: #f0883e;
+      --gh-pink: #f778ba;
+      --gh-danger: #f43f5e;
+
+      --card-bg: rgba(13, 20, 36, 0.94);
+      --card-border: #1e2a45;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --card-title: #ffffff;
+      --card-sub: #8b949e;
+
+      --ctrl-bg: #0a0e1a;
+      --ctrl-btn-bg: #0d1424;
+      --ctrl-btn-text: #e6edf3;
+      --ctrl-btn-border: #1e2a45;
+      --ctrl-btn-hover-bg: #1a2844;
+      --ctrl-btn-hover-text: #ffffff;
+
+      --tab-bg: #0a0e1a;
+      --tab-pill-text: #8b949e;
+      --tab-pill-active-bg: #192742;
+      --tab-pill-active-text: #ffffff;
+      --tab-pill-active-border: #58a6ff;
+
+      --term-bg: #060913;
+      --term-topbar: #090f1e;
+      --term-border: #1e2a45;
+      --term-text: #7ee787;
+      --term-text-danger: #fda4af;
+
+      --code-window-bg: #0a0e1a;
+      --code-titlebar-bg: #0d1527;
+      --code-titlebar-border: #1e2a45;
+      --code-titlebar-text: #8b949e;
+      --code-line-hover: rgba(255, 255, 255, 0.05);
+      --code-line-active: rgba(88, 166, 255, 0.12);
+      --code-line-active-danger: rgba(244, 63, 94, 0.15);
+      --code-lineno: #484f58;
+
+      --tok-comment: #8b949e;
+      --tok-keyword: #ff7b72;
+      --tok-string: #a5d6ff;
+      --tok-number: #d2a8ff;
+      --tok-bool: #ffab70;
+      --tok-fn: #7ee787;
+      --tok-op: #f778ba;
+      --tok-ident: #e6edf3;
+      --tok-punct: #8b949e;
+
+      --info-bg: #0a0e1a;
+      --info-border: #1e2a45;
+      --info-title: #ffffff;
+      --info-desc: #c9d1d9;
+      --info-code-bg: #182338;
+      --info-code-text: #79c0ff;
+      --info-code-border: #1e2a45;
+      --info-tip-bg: rgba(88, 166, 255, 0.06);
+      --info-tip-border: #58a6ff;
+      --info-tip-text: #9fb5d1;
+      --info-tip-danger-bg: rgba(244, 63, 94, 0.08);
+      --info-tip-danger-border: #f43f5e;
+      --info-tip-danger-text: #fca5a5;
+      --dot-inactive: #1e2a45;
+
+      --particle-fill: #ffffff;
+      --particle-stroke: none;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Background Grid */
+    .bg-grid {
+      background-image:
+        linear-gradient(var(--bg-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid-line) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* App Header */
+    .app-header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0d766b, #0284c7);
+      color: #ffffff;
+      font-family: var(--font-code);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .brand-title span {
+      color: var(--gh-blue);
+    }
+
+    .header-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-widget);
+      border: 1px solid var(--line-strong);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--gh-blue);
+      color: var(--gh-blue);
+      transform: translateY(-1px);
+    }
+
+    .week-dropdown-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-widget);
+      border: 1px solid var(--line-strong);
+      padding: 6px 14px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .week-dropdown-wrap label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .week-dropdown-wrap select {
+      background: transparent;
+      border: none;
+      color: var(--gh-blue);
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .week-dropdown-wrap select option {
+      background: var(--bg-widget);
+      color: var(--text);
+    }
+
+    /* Main Container Widget */
+    .viz-widget {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--bg-widget);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Top Control Bar */
+    .viz-topbar {
+      padding: 14px 20px;
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .viz-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .viz-kicker {
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gh-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .viz-heading {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-display);
+    }
+
+    /* Scenario Tabs */
+    .scenario-tabs {
+      display: flex;
+      background: var(--tab-bg);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .tab-pill {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--tab-pill-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tab-pill:hover {
+      color: var(--text);
+    }
+
+    .tab-pill.active {
+      background: var(--tab-pill-active-bg);
+      color: var(--tab-pill-active-text);
+      border: 1px solid var(--tab-pill-active-border);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+
+    .tab-pill.active.danger {
+      background: #fff1f2;
+      color: var(--gh-danger);
+      border-color: #fecdd3;
+    }
+
+    [data-theme="dark"] .tab-pill.active.danger {
+      background: rgba(244, 63, 94, 0.2);
+      color: #ffb4c2;
+      border-color: var(--gh-danger);
+    }
+
+    /* Player Stepper Controls */
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ctrl-bg);
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-step {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ctrl-btn-bg);
+      border: 1px solid var(--ctrl-btn-border);
+      border-radius: 7px;
+      color: var(--ctrl-btn-text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .btn-step:hover:not(:disabled) {
+      background: var(--ctrl-btn-hover-bg);
+      border-color: var(--ctrl-btn-hover-bg);
+      color: var(--ctrl-btn-hover-text);
+    }
+
+    .btn-step.is-playing {
+      background: var(--gh-blue) !important;
+      border-color: var(--gh-blue) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-step:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .step-display {
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gh-blue);
+      padding: 0 8px;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       SVG + HTML Overlay Canvas Stage (Architecture: Section 3 & 4 of Skill)
+       ========================================================================== */
+    .stage-scroll-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg-viewport);
+    }
+
+    .stage-viewport {
+      width: 100%;
+      min-width: 1020px;
+      position: relative;
+      aspect-ratio: 1200 / 440;
+      max-height: 440px;
+    }
+
+    /* SVG Layer (Connectors, markers, lanes, animateMotion) */
+    .viz-svg-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Flow dash animation (from Skill Section 5) */
+    .flow-dash {
+      stroke-dasharray: 7 9;
+      animation: dash-move 1.1s linear infinite;
+    }
+
+    @keyframes dash-move {
+      to { stroke-dashoffset: -16; }
+    }
+
+    /* HTML Overlay Layer (Clickable Nodes) */
+    .viz-html-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Clickable Node Cards */
+    .viz-node-card {
+      position: absolute;
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--card-shadow);
+      outline: none;
+      text-align: left;
+    }
+
+    .viz-node-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      border-color: var(--line-active);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    [data-theme="dark"] .viz-node-card:hover {
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    .viz-node-card.hover-sync-node {
+      transform: translateY(-5px) scale(1.03) !important;
+      border-color: var(--gh-blue) !important;
+    }
+
+    /* Node Header: Chip Badge + Status */
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .node-chip {
+      font-family: var(--font-code);
+      font-size: 0.63rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Chip Badges in Light Theme */
+    .chip-blue   { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .chip-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+    .chip-green  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .chip-orange { background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+    .chip-pink   { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+    .chip-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    /* Chip Badges in Dark Theme */
+    [data-theme="dark"] .chip-blue   { background: rgba(88, 166, 255, 0.15); color: #79b8ff; border: 1px solid rgba(88, 166, 255, 0.35); }
+    [data-theme="dark"] .chip-purple { background: rgba(188, 140, 255, 0.15); color: #d2a8ff; border: 1px solid rgba(188, 140, 255, 0.35); }
+    [data-theme="dark"] .chip-green  { background: rgba(63, 185, 80, 0.15);  color: #7ee787; border: 1px solid rgba(63, 185, 80, 0.35); }
+    [data-theme="dark"] .chip-orange { background: rgba(240, 136, 62, 0.15); color: #ffab70; border: 1px solid rgba(240, 136, 62, 0.35); }
+    [data-theme="dark"] .chip-pink   { background: rgba(247, 120, 186, 0.15); color: #ff9bce; border: 1px solid rgba(247, 120, 186, 0.35); }
+    [data-theme="dark"] .chip-danger { background: rgba(244, 63, 94, 0.18);  color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    .node-step-tag {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .node-title {
+      font-family: var(--font-code);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--card-title);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-sub {
+      font-size: 0.74rem;
+      color: var(--card-sub);
+      line-height: 1.35;
+    }
+
+    /* Active Node States (Glow + Pulsing Ring) */
+    .viz-node-card.active {
+      transform: translateY(-4px) scale(1.04);
+      z-index: 10;
+    }
+
+    .viz-node-card.active.phase-blue {
+      border-color: var(--gh-blue) !important;
+      box-shadow: 0 0 0 3.5px rgba(2, 132, 199, 0.18), 0 10px 24px rgba(2, 132, 199, 0.14);
+    }
+    .viz-node-card.active.phase-purple {
+      border-color: var(--gh-purple) !important;
+      box-shadow: 0 0 0 3.5px rgba(124, 58, 237, 0.18), 0 10px 24px rgba(124, 58, 237, 0.14);
+    }
+    .viz-node-card.active.phase-green {
+      border-color: var(--gh-green) !important;
+      box-shadow: 0 0 0 3.5px rgba(22, 163, 74, 0.18), 0 10px 24px rgba(22, 163, 74, 0.14);
+    }
+    .viz-node-card.active.phase-orange {
+      border-color: var(--gh-orange) !important;
+      box-shadow: 0 0 0 3.5px rgba(234, 88, 12, 0.18), 0 10px 24px rgba(234, 88, 12, 0.14);
+    }
+    .viz-node-card.active.phase-pink {
+      border-color: var(--gh-pink) !important;
+      box-shadow: 0 0 0 3.5px rgba(219, 39, 119, 0.18), 0 10px 24px rgba(219, 39, 119, 0.14);
+    }
+    .viz-node-card.active.phase-danger {
+      border-color: var(--gh-danger) !important;
+      box-shadow: 0 0 0 3.5px rgba(225, 29, 72, 0.22), 0 10px 24px rgba(225, 29, 72, 0.18);
+    }
+
+    [data-theme="dark"] .viz-node-card.active.phase-blue {
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25), 0 12px 28px rgba(88, 166, 255, 0.2);
+    }
+    [data-theme="dark"] .viz-node-card.active.phase-purple {
+      box-shadow: 0 0 0 3px rgba(188, 140, 255, 0.25), 0 12px 28px rgba(188, 140, 255, 0.2);
+    }
+    [data-theme="dark"] .viz-node-card.active.phase-green {
+      box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.25), 0 12px 28px rgba(63, 185, 80, 0.2);
+    }
+    [data-theme="dark"] .viz-node-card.active.phase-orange {
+      box-shadow: 0 0 0 3px rgba(240, 136, 62, 0.25), 0 12px 28px rgba(240, 136, 62, 0.2);
+    }
+    [data-theme="dark"] .viz-node-card.active.phase-pink {
+      box-shadow: 0 0 0 3px rgba(247, 120, 186, 0.25), 0 12px 28px rgba(247, 120, 186, 0.2);
+    }
+    [data-theme="dark"] .viz-node-card.active.phase-danger {
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.3), 0 12px 28px rgba(244, 63, 94, 0.25);
+    }
+
+    /* Active Pulse Ring */
+    .viz-node-card.active::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 12px;
+      height: 12px;
+      background: currentColor;
+      border: 2px solid var(--bg-widget);
+      border-radius: 50%;
+      animation: pulse-ring 1.4s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(2, 132, 199, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+    }
+
+    [data-theme="dark"] @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(88, 166, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0); }
+    }
+
+    /* Lane labels */
+    .lane-label {
+      position: absolute;
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 4px 8px;
+    }
+
+    /* ==========================================================================
+       Bottom Split Section: Code ↔ Diagram Sync & Live Output
+       ========================================================================== */
+    .viz-bottom-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 16px;
+      padding: 16px 20px 20px 20px;
+      background: var(--bg-bottom-grid);
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 960px) {
+      .viz-bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Info & Explanation Card */
+    .info-panel {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-dots {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .p-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--dot-inactive);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .p-dot.active {
+      background: var(--gh-blue);
+      transform: scale(1.3);
+      box-shadow: 0 0 6px var(--gh-blue);
+    }
+
+    .info-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--info-title);
+      font-family: var(--font-display);
+    }
+
+    .info-desc {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--info-desc);
+    }
+
+    .info-desc code {
+      background: var(--info-code-bg);
+      color: var(--info-code-text);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      border: 1px solid var(--info-code-border);
+    }
+
+    /* Key Takeaway Tip */
+    .info-tip {
+      background: var(--info-tip-bg);
+      border-left: 3px solid var(--info-tip-border);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.78rem;
+      color: var(--info-tip-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-tip.danger {
+      background: var(--info-tip-danger-bg);
+      border-left-color: var(--info-tip-danger-border);
+      color: var(--info-tip-danger-text);
+    }
+
+    /* Terminal Output Pane */
+    .terminal-pane {
+      background: var(--term-bg);
+      border: 1px solid var(--term-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .term-topbar {
+      background: var(--term-topbar);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--term-border);
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .term-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .term-body {
+      padding: 10px 14px;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      color: var(--term-text);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      max-height: 110px;
+      overflow-y: auto;
+    }
+
+    .term-body.danger {
+      color: var(--term-text-danger);
+    }
+
+    /* ==========================================================================
+       CodeBlock with Tokenizer (Pattern B & C of Skill)
+       ========================================================================== */
+    .code-window {
+      background: var(--code-window-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .mac-titlebar {
+      background: var(--code-titlebar-bg);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--code-titlebar-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mac-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mac-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .mac-dot.red    { background: #ff5f56; }
+    .mac-dot.yellow { background: #ffbd2e; }
+    .mac-dot.green  { background: #27c93f; }
+
+    .mac-filename {
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: var(--code-titlebar-text);
+      letter-spacing: 0.02em;
+    }
+
+    .mac-badge {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      color: var(--gh-purple);
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .mac-badge {
+      background: rgba(188, 140, 255, 0.12);
+      border: 1px solid rgba(188, 140, 255, 0.3);
+      color: var(--gh-purple);
+    }
+
+    .code-lines-wrap {
+      padding: 10px 0;
+      font-family: var(--font-code);
+      font-size: 0.78rem;
+      line-height: 1.65;
+      overflow-y: auto;
+      max-height: 320px;
+    }
+
+    /* Code Line with hover sync */
+    .code-line {
+      display: flex;
+      align-items: center;
+      padding: 3px 14px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, border-left-color 0.15s;
+    }
+
+    .code-line:hover, .code-line.hover-sync {
+      background: var(--code-line-hover);
+    }
+
+    .code-line.active-line {
+      background: var(--code-line-active);
+      border-left-color: var(--gh-blue);
+    }
+
+    .code-line.active-line.danger {
+      background: var(--code-line-active-danger);
+      border-left-color: var(--gh-danger);
+    }
+
+    .line-no {
+      width: 28px;
+      color: var(--code-lineno);
+      text-align: right;
+      padding-right: 12px;
+      user-select: none;
+      font-size: 0.7rem;
+    }
+
+    .line-content {
+      flex: 1;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .line-badge-tag {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+
+    /* Tokenizer Styles (from Skill Pattern C) */
+    .tok-comment { color: var(--tok-comment); font-style: italic; }
+    .tok-keyword { color: var(--tok-keyword); font-weight: 600; }
+    .tok-string  { color: var(--tok-string); }
+    .tok-number  { color: var(--tok-number); }
+    .tok-bool    { color: var(--tok-bool); font-weight: 600; }
+    .tok-fn      { color: var(--tok-fn); font-weight: 600; }
+    .tok-op      { color: var(--tok-op); font-weight: 600; }
+    .tok-ident   { color: var(--tok-ident); }
+    .tok-punct   { color: var(--tok-punct); }
+
+    /* Footer Meta */
+    .viz-footer {
+      padding: 10px 20px;
+      background: var(--bg-topbar);
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .shortcut-pill {
+      background: var(--bg-widget);
+      border: 1px solid var(--line-strong);
+      color: var(--text-muted);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+    }
+  </style>
+</head>
+<body class="bg-grid" data-theme="light">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-wrap">
+      <span class="brand-badge">VISUAL FLOW</span>
+      <h1 class="brand-title">Data Science <span>Interactive Diagrams</span></h1>
+    </div>
+
+    <div class="header-right-actions">
+      <!-- Theme Toggle: Default Light -->
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="สลับโหมดสว่าง / มืด">
+        <span id="themeIcon">🌙</span> <span id="themeLabel">โหมดมืด</span>
+      </button>
+
+      <div class="week-dropdown-wrap">
+        <label for="weekSelect">เลือกบทเรียน:</label>
+        <select id="weekSelect" onchange="onSelectWeek(this.value)">
+          <option value="0">Week 01: เริ่มต้นและรู้จักข้อมูล</option>
+          <option value="1">Week 02: Data Wrangling</option>
+          <option value="2">Week 03: Cleaning data</option>
+          <option value="3">Week 04: Filter data</option>
+          <option value="4">Week 05: Analysis พื้นฐาน</option>
+          <option value="5">Week 06: Visualization</option>
+          <option value="6">Week 07: เล่าเรื่องจากข้อมูล</option>
+          <option value="7">Week 08: Machine Learning เบื้องต้น</option>
+          <option value="8">Week 09: Mini project: สำรวจ</option>
+          <option value="9">Week 10: Mini project: นำเสนอ</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Widget Container -->
+  <main class="viz-widget">
+    
+    <!-- Top Control Bar -->
+    <div class="viz-topbar">
+      <div class="viz-title-group">
+        <span class="viz-kicker" id="topicBadge">WEEK 01 · DATA PIPELINE</span>
+        <h2 class="viz-heading" id="topicTitle">Week 01: เริ่มต้นและรู้จักข้อมูล</h2>
+      </div>
+
+      <!-- Scenario Switcher Pills -->
+      <div class="scenario-tabs" id="scenarioTabs">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Stepper Controls -->
+      <div class="stepper-controls">
+        <button class="btn-step" id="playBtn" onclick="togglePlay()" title="เล่น/หยุดอัตโนมัติ (Space)">▶</button>
+        <button class="btn-step" id="prevBtn" onclick="prevStep()" title="ย้อนกลับ (←)">◀</button>
+        <span class="step-display" id="stepDisplay">1/4</span>
+        <button class="btn-step" id="nextBtn" onclick="nextStep()" title="ถัดไป (→)">▶</button>
+        <button class="btn-step" onclick="resetStep()" title="เริ่มใหม่ (R)">⟳</button>
+      </div>
+    </div>
+
+    <!-- Canvas Stage (SVG Connectors + HTML Overlay Nodes) -->
+    <div class="stage-scroll-wrapper">
+      <div class="stage-viewport" id="stageViewport">
+        
+        <!-- SVG Layer: Lanes, Connectors, Glow Filter & Animated Moving Particle -->
+        <svg class="viz-svg-layer" id="vizSvg" viewBox="0 0 1200 440">
+          <defs>
+            <!-- Glowing / Soft Shadow Filter -->
+            <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="1" stdDeviation="2.5" flood-color="#0284c7" flood-opacity="0.4" />
+            </filter>
+
+            <!-- Arrow Markers per Phase Color -->
+            <marker id="arrBlue" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#0284c7" />
+            </marker>
+            <marker id="arrPurple" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#7c3aed" />
+            </marker>
+            <marker id="arrGreen" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#16a34a" />
+            </marker>
+            <marker id="arrOrange" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#ea580c" />
+            </marker>
+            <marker id="arrPink" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#db2777" />
+            </marker>
+            <marker id="arrDanger" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M 0 1 L 7 4 L 0 7 Z" fill="#e11d48" />
+            </marker>
+          </defs>
+
+          <!-- Grouped Lanes (SVG background rects) -->
+          <g id="svgLanes"></g>
+
+          <!-- Connector Paths -->
+          <g id="svgConnectors"></g>
+
+          <!-- Traveling Light Dot (SMIL animateMotion along ROUTE) -->
+          <circle id="travelParticle" r="5" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" filter="url(#neonGlow)">
+            <animateMotion id="motionAnim" dur="6s" repeatCount="indefinite" path="M 155 210 L 450 210 L 750 210 L 1045 210" />
+          </circle>
+        </svg>
+
+        <!-- HTML Overlay Layer: Clickable Node Cards -->
+        <div class="viz-html-overlay" id="htmlOverlay">
+          <!-- Rendered dynamically by JS -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Split Section: Info Card + Synchronized macOS CodeBlock -->
+    <div class="viz-bottom-grid">
+      
+      <!-- Left: Info Panel & Terminal Output -->
+      <div class="info-panel">
+        <div class="info-header">
+          <span class="phase-badge chip-blue" id="phaseBadge">
+            <span id="phaseDot">●</span>
+            <span id="phaseText">PHASE 1 · INPUT</span>
+          </span>
+
+          <div class="progress-dots" id="progressDots">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <h3 class="info-title" id="infoTitle">คำอธิบายขั้นตอน</h3>
+        <p class="info-desc" id="infoDesc">กำลังโหลดข้อมูลขั้นตอน...</p>
+
+        <div class="info-tip" id="infoTip">
+          <span>💡</span> <span id="infoTipText">เคล็ดลับ: สังเกตว่าแต่ละขั้นส่งค่าอะไรต่อไปให้ขั้นถัดไป</span>
+        </div>
+
+        <!-- Mini Terminal / Live Data Preview -->
+        <div class="terminal-pane">
+          <div class="term-topbar">
+            <div class="term-dot"></div>
+            <span>DATA OUTPUT &amp; VARIABLE INSPECTOR</span>
+          </div>
+          <pre class="term-body" id="termBody">ผลลัพธ์ของข้อมูลจะปรากฏที่นี่</pre>
+        </div>
+      </div>
+
+      <!-- Right: macOS CodeBlock with Tokenizer (Pattern B & C) -->
+      <div class="code-window">
+        <div class="mac-titlebar">
+          <div class="mac-controls">
+            <span class="mac-dot red"></span>
+            <span class="mac-dot yellow"></span>
+            <span class="mac-dot green"></span>
+          </div>
+          <span class="mac-filename" id="macFilename">pipeline_week01.py</span>
+          <span class="mac-badge">CODE ↔ SYNC</span>
+        </div>
+
+        <div class="code-lines-wrap" id="codeLinesWrap">
+          <!-- Rendered line by line by Tokenizer -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="viz-footer">
+      <div>💡 แตะ/คลิกที่กล่องขั้นตอนเพื่อกระโดดดูโค้ดจริง | เลื่อนเมาส์บนบรรทัดโค้ดเพื่อไฮไลต์ผังระบบ</div>
+      <div>คีย์ลัด: <span class="shortcut-pill">Space</span> เล่น/หยุด | <span class="shortcut-pill">←</span> ก่อนหน้า | <span class="shortcut-pill">→</span> ถัดไป</div>
+    </footer>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       Complete Curriculum Data for All 10 Weeks
+       ========================================================================== */
+    const CURRICULUM = [
+      // Week 01
+      {
+        week: 1,
+        title: "เริ่มต้นและรู้จักข้อมูล",
+        badge: "WEEK 01 · DATA PIPELINE",
+        filename: "week01_intro_pipeline.py",
+        scenarios: [
+          {
+            id: "pandas",
+            name: "อ่านไฟล์และตรวจตาราง (read_csv)",
+            type: "success",
+            nodes: [
+              { id: "n1", badge: "DISK FILE", title: "footballers.csv", sub: "ไฟล์ดิบ 20 แถว 15 คอลัมน์", phase: "blue" },
+              { id: "n2", badge: "FUNCTION", title: "pd.read_csv()", sub: "อ่านและแปลงเป็นตาราง", phase: "purple" },
+              { id: "n3", badge: "DATAFRAME", title: "df (In-Memory)", sub: "ตาราง 2 มิติ (20, 15)", phase: "blue" },
+              { id: "n4", badge: "METHOD", title: "df.head(3) / info()", sub: "ตรวจชื่อและ missing value", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "n1",
+                phaseName: "SOURCE DATA",
+                title: "จุดเริ่มต้น: ไฟล์ CSV บนดิสก์",
+                desc: "ไฟล์ <code>footballers.csv</code> บรรจุข้อมูลนักเตะระดับโลก เช่น Messi, Ronaldo, Mbappe เก็บอยู่ในโฟลเดอร์ <code>data/</code>",
+                output: "footballers.csv (3.8 KB)\nColumns: name, club, league, age, height_cm, overall, value_millions...",
+                tip: "ก่อนเขียนโค้ดวิเคราะห์ใดๆ เราต้องมีไฟล์ต้นทางที่ชัดเจนและทราบตำแหน่งที่ตั้งของไฟล์เสมอ",
+                statusType: "primary",
+                codeLine: "import pandas as pd",
+                codeBadge: "SYNTAX",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "n2",
+                phaseName: "LOAD ENGINE",
+                title: "นำเข้าและอ่านไฟล์ด้วย Pandas",
+                desc: "เรียกใช้ Function <code>pd.read_csv('../data/footballers.csv')</code> เพื่อให้ Pandas ตรวจจับแถวและคอลัมน์อัตโนมัติ",
+                output: "Loading ../data/footballers.csv -> Parse headers, detect integer & float types...",
+                tip: "Function ของ library จะมีวงเล็บ () เสมอเพื่อส่ง path ของไฟล์เข้าไป",
+                statusType: "primary",
+                codeLine: "df = pd.read_csv('../data/footballers.csv')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "n3",
+                phaseName: "STRUCTURE CHECK",
+                title: "ตรวจสอบขนาดโครงสร้างตาราง (Property)",
+                desc: "ใช้ <code>df.shape</code> ตรวจว่าตารางมีกี่แถวและกี่คอลัมน์ โดย **ห้ามใส่วงเล็บ ()** เพราะเป็น Property สเปกตาราง",
+                output: "df.shape -> (20, 15)  [20 แถว, 15 คอลัมน์]\ndf.columns -> Index(['name', 'club', 'league', 'age', 'height_cm', ...])",
+                tip: "Property คือสเปกที่ติดมากับตาราง เช่น shape, columns, dtypes ห้ามใส่ () เด็ดขาด",
+                statusType: "success",
+                codeLine: "print('ขนาดข้อมูล:', df.shape)",
+                codeBadge: "PROPERTY (ไม่มี ())",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "n4",
+                phaseName: "SAFE VERIFICATION",
+                title: "ดูตัวอย่างแถวและตรวจข้อมูลหาย",
+                desc: "ใช้ <code>df.head(3)</code> และ <code>df.info()</code> เพื่อตรวจว่าคอลัมน์มีอยู่จริง และมีข้อมูลหายที่ <code>height_cm</code> หรือไม่",
+                output: "name            club          league   age  height_cm  overall\nLionel Messi    Inter Miami   MLS       37      170.0       90\nCristiano R.    Al Nassr      SPL       39      187.0       86\nKylian Mbappe   Real Madrid   La Liga   26      178.0       91",
+                tip: "df.head() เป็น Method มีวงเล็บ () เพื่อระบุจำนวนแถวที่ต้องการแอบดูตัวอย่าง",
+                statusType: "success",
+                codeLine: "df.head(3)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          },
+          {
+            id: "filenotfound",
+            name: "จุดที่มักพัง (FileNotFoundError)",
+            type: "danger",
+            nodes: [
+              { id: "e1", badge: "NOTEBOOK RUN", title: "รันในโฟลเดอร์ย่อย", sub: "ไฟล์อยู่ที่ weeks/ หรือ challenge/", phase: "orange" },
+              { id: "e2", badge: "WRONG PATH", title: "read_csv('data/...')", sub: "ลืมใส่ ../ เพื่อถอยหลัง 1 ชั้น", phase: "pink" },
+              { id: "e3", badge: "PYTHON ERROR", title: "FileNotFoundError", sub: "[Errno 2] No such file", phase: "danger" },
+              { id: "e4", badge: "PROPER FIX", title: "แก้เป็น '../data/...'", sub: "ระบุ Path สัมพัทธ์ถูกต้อง", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "e1",
+                phaseName: "USER CONTEXT",
+                title: "เปิด Notebook ในโฟลเดอร์ย่อย",
+                desc: "เมื่อเราทำงานในโฟลเดอร์ย่อย เช่น <code>weeks/week-01.ipynb</code> ตำแหน่งปัจจุบัน (Current Directory) จะอยู่ที่โฟลเดอร์ย่อยนั้น",
+                output: "Current Working Directory: /Users/jj/data-sci/weeks/",
+                tip: "Python จะมองหาโฟลเดอร์โดยเริ่มนับจากตำแหน่งที่ไฟล์โค้ดกำลังทำงานอยู่เสมอ",
+                statusType: "warning",
+                codeLine: "# สมมุติกำลังรันโค้ดจากโฟลเดอร์ weeks/",
+                codeBadge: "CONTEXT",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "e2",
+                phaseName: "WRONG ATTEMPT",
+                title: "ใส่ Path ไม่ถอยหลัง 1 โฟลเดอร์",
+                desc: "เขียน <code>pd.read_csv('data/footballers.csv')</code> โดยลืมว่าโฟลเดอร์ <code>data</code> อยู่นอกโฟลเดอร์ <code>weeks</code>",
+                output: "Looking for: /Users/jj/data-sci/weeks/data/footballers.csv -> Not found!",
+                tip: "ถ้าไฟล์อยู่โฟลเดอร์ข้างนอก ต้องใช้ ../ เพื่อถอยหลังหนึ่งก้าว",
+                statusType: "danger",
+                codeLine: "df = pd.read_csv('data/footballers.csv')  # บรรทัดนี้จะพัง!",
+                codeBadge: "WRONG PATH",
+                badgeType: "chip-pink"
+              },
+              {
+                activeNode: "e3",
+                phaseName: "TRACEBACK ERROR",
+                title: "Python ฟ้อง FileNotFoundError",
+                desc: "ระบบแจ้งเตือน <code>FileNotFoundError: [Errno 2] No such file or directory</code> ไม่พบไฟล์ตามที่ระบุ",
+                output: "FileNotFoundError: [Errno 2] No such file or directory: 'data/footballers.csv'",
+                tip: "เมื่อเจอ FileNotFoundError ให้เช็กตำแหน่งไฟล์ด้วย os.path.exists() เสมอ",
+                statusType: "danger",
+                codeLine: "# FileNotFoundError: [Errno 2] No such file or directory",
+                codeBadge: "EXCEPTION",
+                badgeType: "chip-danger"
+              },
+              {
+                activeNode: "e4",
+                phaseName: "FIXED PATH",
+                title: "แก้ไข Path เป็น '../data/footballers.csv'",
+                desc: "ใส่เครื่องหมาย <code>../</code> เพื่อถอยหลังออกจากโฟลเดอร์ย่อย แล้วเข้าสู่ <code>data/footballers.csv</code> สำเร็จ",
+                output: "Found file: ../data/footballers.csv -> Load 20 rows successfully!",
+                tip: "เครื่องหมาย ../ หมายถึงถอยหลังออกจากโฟลเดอร์ปัจจุบัน 1 ระดับ",
+                statusType: "success",
+                codeLine: "df = pd.read_csv('../data/footballers.csv')  # รันผ่านฉลุย!",
+                codeBadge: "CORRECT FIX",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 02
+      {
+        week: 2,
+        title: "Data Wrangling",
+        badge: "WEEK 02 · SELECTION & RENAME",
+        filename: "week02_wrangling_pipeline.py",
+        scenarios: [
+          {
+            id: "wrangling_safe",
+            name: "เลือกและเปลี่ยนชื่ออย่างปลอดภัย (Safe)",
+            type: "success",
+            nodes: [
+              { id: "w1", badge: "INPUT TABLE", title: "df (15 cols)", sub: "ตารางดิบ มีคอลัมน์เกินจำเป็น", phase: "blue" },
+              { id: "w2", badge: "2D DATAFRAME", title: "df[['name',...]]", sub: "วงเล็บคู่ ได้ตาราง 3 คอลัมน์", phase: "purple" },
+              { id: "w3", badge: "METHOD", title: ".rename()", sub: "เปลี่ยน overall -> rating", phase: "orange" },
+              { id: "w4", badge: "CLEAN REPORT", title: "summary (3 cols)", sub: "ตารางใหม่ โดย df เดิมไม่เปลี่ยน", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "w1",
+                phaseName: "ORIGINAL DATA",
+                title: "ตารางตั้งต้นมีคอลัมน์มากเกินไป",
+                desc: "ตารางดิบ <code>df</code> มีถึง 15 คอลัมน์ หากนำไปแสดงทั้งหมดจะทำให้รายงานรกตาและเสี่ยงหยิบชื่อผิด",
+                output: "df.columns: name, club, league, nationality, position, age, height_cm, overall, pace...",
+                tip: "ก่อนทำรายงาน ให้เลือกเฉพาะคอลัมน์ที่จำเป็นต่อการตอบคำถามเท่านั้น",
+                statusType: "primary",
+                codeLine: "selected_cols = ['name', 'club', 'overall']",
+                codeBadge: "SYNTAX",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "w2",
+                phaseName: "SUBSET EXTRACTION",
+                title: "เลือกคอลัมน์ด้วยวงเล็บคู่ [[ ]]",
+                desc: "ใช้วงเล็บก้ามปูคู่ <code>df[['name', 'club', 'overall']]</code> เพื่อให้ได้ตาราง 2 มิติ (DataFrame) ไม่ใช่ Series เสาเดี่ยว",
+                output: "summary: 20 แถว, 3 คอลัมน์ (name, club, overall)",
+                tip: "df['col'] วงเล็บเดี่ยวได้ Series (1 มิติ); df[['col']] วงเล็บคู่ได้ DataFrame (2 มิติ)",
+                statusType: "primary",
+                codeLine: "summary = df[selected_cols]",
+                codeBadge: "2D DATAFRAME",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "w3",
+                phaseName: "RENAME METHOD",
+                title: "เปลี่ยนชื่อคอลัมน์ให้เข้าใจง่าย",
+                desc: "ใช้ Method <code>.rename(columns={'overall': 'rating'})</code> เพื่อเปลี่ยนศัพท์เทคนิคให้ผู้อ่านทั่วไปเข้าใจทันที",
+                output: "คอลัมน์ overall ถูกเปลี่ยนชื่อเป็น 'rating'",
+                tip: "rename เป็น Method มี () รับ dictionary กำหนดชื่อเดิม:ชื่อใหม่",
+                statusType: "success",
+                codeLine: "summary = summary.rename(columns={'overall': 'rating'})",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "w4",
+                phaseName: "OUTPUT VERIFIED",
+                title: "ตารางใหม่พร้อมใช้ และ df เดิมปลอดภัย",
+                desc: "ได้ตาราง <code>summary</code> ใหม่ที่มี name, club, rating ขณะที่ <code>df</code> ต้นฉบับยังคงสมบูรณ์ 100%",
+                output: "summary.head(3):\nname           club          rating\nLionel Messi   Inter Miami   90\nCristiano R.   Al Nassr      86\nKylian Mbappe  Real Madrid   91",
+                tip: "การแยกตารางใหม่ช่วยป้องกันข้อผิดพลาด SettingWithCopyWarning",
+                statusType: "success",
+                codeLine: "summary.head(3)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          },
+          {
+            id: "keyerror_case",
+            name: "Error ที่พบบ่อย (KeyError ตัวพิมพ์ใหญ่)",
+            type: "danger",
+            nodes: [
+              { id: "k1", badge: "CODE ATTEMPT", title: "df['Overall']", sub: "เรียกด้วยตัวพิมพ์ใหญ่ 'O'", phase: "orange" },
+              { id: "k2", badge: "CASE SENSITIVE", title: "Python Lookup", sub: "ตรวจสอบชื่อแบบแยกพิมพ์ใหญ่", phase: "pink" },
+              { id: "k3", badge: "KEYERROR", title: "KeyError: 'Overall'", sub: "หาคอลัมน์ชื่อนี้ไม่เจอในตาราง", phase: "danger" },
+              { id: "k4", badge: "CORRECT FIX", title: "ตรวจ df.columns", sub: "ใช้ชื่อจริง 'overall' ตัวเล็ก", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "k1",
+                phaseName: "MISTAKE",
+                title: "เผลอพิมพ์ชื่อคอลัมน์ด้วยตัวพิมพ์ใหญ่",
+                desc: "ผู้เรียนพิมพ์ <code>df['Overall']</code> เพราะความเคยชิน ทั้งที่ในไฟล์ชื่อจริงคือ <code>overall</code>",
+                output: "Looking for column: 'Overall'",
+                tip: "Python และ Pandas เป็นภาษา Case-sensitive (แยกตัวพิมพ์เล็ก-ใหญ่เด็ดขาด)",
+                statusType: "warning",
+                codeLine: "rating = df['Overall']  # สะกดตัว O ใหญ่",
+                codeBadge: "MISTAKE",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "k2",
+                phaseName: "COLUMN SEARCH",
+                title: "ระบบค้นหาในรายชื่อคอลัมน์",
+                desc: "Python ตรวจสอบใน <code>df.columns</code> พบว่ามีเฉพาะคำว่า <code>overall</code> (ตัวพิมพ์เล็ก)",
+                output: "'Overall' in df.columns -> False\n'overall' in df.columns -> True",
+                tip: "ก่อนเรียกคอลัมน์ใด ควรเปิด df.columns ดูชื่อจริงก่อนเสมอ",
+                statusType: "danger",
+                codeLine: "# ตรวจสอบใน df.columns แล้วไม่พบ 'Overall'",
+                codeBadge: "LOOKUP FAIL",
+                badgeType: "chip-pink"
+              },
+              {
+                activeNode: "k3",
+                phaseName: "ERROR RAISED",
+                title: "Python โยนข้อผิดพลาด KeyError",
+                desc: "โปรแกรมหยุดทำงานและฟ้อง <code>KeyError: 'Overall'</code> หมายถึงหา Key นี้ในตารางไม่เจอ",
+                output: "KeyError: 'Overall'",
+                tip: "KeyError ใน Pandas 99% เกิดจากสะกดชื่อคอลัมน์ผิดหรือตัวเล็กใหญ่ไม่ตรง",
+                statusType: "danger",
+                codeLine: "# KeyError: 'Overall'",
+                codeBadge: "KEYERROR",
+                badgeType: "chip-danger"
+              },
+              {
+                activeNode: "k4",
+                phaseName: "FIX WITH PROPERTY",
+                title: "แก้โดยเช็ก df.columns แล้วใช้ชื่อจริง",
+                desc: "รัน <code>df.columns</code> ดูชื่อจริง แล้วเปลี่ยนเป็น <code>df['overall']</code> ตัวพิมพ์เล็ก",
+                output: "df['overall'].head(3) -> [90, 86, 91] (ทำงานถูกต้อง!)",
+                tip: "df.columns เป็น Property ไม่ต้องมี () ใช้ดูรายชื่อคอลัมน์ทั้งหมดได้ทันที",
+                statusType: "success",
+                codeLine: "df['overall'].head(3)  # แก้เป็นตัวเล็ก รันผ่านฉลุย",
+                codeBadge: "FIXED (SERIES)",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 03
+      {
+        week: 3,
+        title: "Cleaning data",
+        badge: "WEEK 03 · MISSING VALUES",
+        filename: "week03_cleaning_pipeline.py",
+        scenarios: [
+          {
+            id: "median_clean",
+            name: "แทนค่าว่างด้วย Median (fillna)",
+            type: "success",
+            nodes: [
+              { id: "c1", badge: "INSPECT", title: ".isna().sum()", sub: "พบ height_cm ว่าง 1 จุด (NaN)", phase: "orange" },
+              { id: "c2", badge: "METHOD", title: ".median() = 181.0", sub: "หาค่ากลาง ทนทานต่อ Outlier", phase: "purple" },
+              { id: "c3", badge: "IMPUTATION", title: ".fillna(median)", sub: "แทนเฉพาะช่องที่ว่าง", phase: "purple" },
+              { id: "c4", badge: "CLEAN DF", title: "clean_df (20/20)", sub: "ได้ตารางสมบูรณ์ ไม่มีค่าว่าง", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "c1",
+                phaseName: "DETECT MISSING",
+                title: "ตรวจพบค่าที่หายไป (NaN)",
+                desc: "ตรวจนับช่องว่างด้วย <code>df['height_cm'].isna().sum()</code> พบว่า Casemiro ขาดข้อมูลส่วนสูง (NaN)",
+                output: "df['height_cm'].isna().sum() -> 1\nRow with missing value: Casemiro (height_cm = NaN)",
+                tip: "NaN คือ Not a Number หรือช่องว่าง ไม่ใช่เลขศูนย์ 0",
+                statusType: "warning",
+                codeLine: "missing_count = df['height_cm'].isna().sum()",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "c2",
+                phaseName: "STAT CALCULATION",
+                title: "คำนวณค่ามัธยฐาน (Median)",
+                desc: "หาค่ากลางด้วย <code>median()</code> ได้ 181.0 ซม. ซึ่งสมเหตุผลและทนทานต่อค่าผิดปกติ (Outlier)",
+                output: "median_height = df['height_cm'].median() -> 181.0 cm",
+                tip: "ส่วนสูงควรใช้ Median แทนค่า เพราะทนทานกว่าค่าเฉลี่ย Mean",
+                statusType: "primary",
+                codeLine: "median_height = df['height_cm'].median()",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "c3",
+                phaseName: "ASSIGN & FILL",
+                title: "แทนค่าว่างด้วย fillna และ assign",
+                desc: "ใช้ <code>fillna(median_height)</code> ร่วมกับ <code>assign()</code> เพื่อสร้างตารางใหม่โดยไม่เผลอแก้ df เดิม",
+                output: "Casemiro: height_cm เดิม NaN -> ถูกแทนด้วย 181.0 cm",
+                tip: "assign + fillna ช่วยสร้างตารางใหม่ ลดความเสี่ยงในการทำลายข้อมูลเดิม",
+                statusType: "success",
+                codeLine: "clean_df = df.assign(height_cm=df['height_cm'].fillna(median_height))",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "c4",
+                phaseName: "VERIFICATION",
+                title: "ยืนยันผล: ไม่มีค่าว่างเหลืออยู่",
+                desc: "ตรวจซ้ำ <code>clean_df['height_cm'].isna().sum() == 0</code> ข้อมูลพร้อมนำไปวิเคราะห์ต่ออย่างมั่นใจ",
+                output: "clean_df['height_cm'].isna().sum() -> 0\nAll 20 players have complete height values!",
+                tip: "หลังการ Clean ทุกครั้ง ต้องมีขั้นตอนยืนยันผลเสมอ",
+                statusType: "success",
+                codeLine: "clean_df['height_cm'].isna().sum()",
+                codeBadge: "0 MISSING ✓",
+                badgeType: "chip-green"
+              }
+            ]
+          },
+          {
+            id: "zero_pitfall",
+            name: "หลุมพราง: เผลอใส่ 0 แทนค่าว่าง",
+            type: "danger",
+            nodes: [
+              { id: "p1", badge: "MISSING FOUND", title: "height_cm หาย 1 คน", sub: "Casemiro ขาดส่วนสูง", phase: "orange" },
+              { id: "p2", badge: "BAD CHOICE", title: "fillna(0)", sub: "คิดง่ายๆ ว่าแทนด้วยเลขศูนย์", phase: "pink" },
+              { id: "p3", badge: "DISTORTION", title: "ค่าเฉลี่ยดิ่งฮวบ", sub: "คนสูง 0 ซม. ดึงค่าเฉลี่ยเพี้ยน", phase: "danger" },
+              { id: "p4", badge: "BEST PRACTICE", title: "เลือกวิธีตามบริบท", sub: "ใช้ Median หรือตัดแถว dropna", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "p1",
+                phaseName: "CONTEXT",
+                title: "พบช่องว่างในคอลัมน์ส่วนสูง",
+                desc: "ตรวจพบว่า Casemiro ไม่มีข้อมูลส่วนสูงในตาราง",
+                output: "Casemiro: height_cm = NaN",
+                tip: "อย่าเพิ่งรีบแทนค่าโดยยังไม่ได้คิดถึงความหมายของข้อมูลในชีวิตจริง",
+                statusType: "warning",
+                codeLine: "# พบว่า height_cm ขาดข้อมูล 1 คน",
+                codeBadge: "MISSING",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "p2",
+                phaseName: "FAULTY ACTION",
+                title: "ผู้เรียนเขียน fillna(0) เพราะคิดว่าง่าย",
+                desc: "สั่งแทนค่าว่างด้วยเลข 0: <code>bad_df = df.assign(height_cm=df['height_cm'].fillna(0))</code>",
+                output: "Casemiro: height_cm = 0.0 cm (ในโลกจริงไม่มีคนสูง 0 เซนติเมตร!)",
+                tip: "การแทน 0 กับข้อมูลที่ไม่ควรเป็น 0 จะทำให้สถิติภาพรวมพังทันที",
+                statusType: "danger",
+                codeLine: "bad_df = df.assign(height_cm=df['height_cm'].fillna(0))",
+                codeBadge: "BAD CHOICE",
+                badgeType: "chip-pink"
+              },
+              {
+                activeNode: "p3",
+                phaseName: "HEAVY DISTORTION",
+                title: "ค่าเฉลี่ยเพี้ยนรุนแรง",
+                desc: "เมื่อมีคนสูง 0 ซม. รวมอยู่ ค่าเฉลี่ยส่วนสูงของนักเตะในลีกตกฮวบจาก 181.2 ซม. เหลือเพียง 172.1 ซม.",
+                output: "ค่าเฉลี่ยจริง: 181.2 ซม.\nค่าเฉลี่ยหลังใส่ 0: 172.1 ซม. (ผิดความจริงไปเกือบ 10 ซม.!)",
+                tip: "ค่าผิดพลาดเพียงจุดเดียวสามารถทำลายความน่าเชื่อถือของทั้งรายงาน",
+                statusType: "danger",
+                codeLine: "bad_df['height_cm'].mean()  # ได้ 172.1 cm เพี้ยนหนัก!",
+                codeBadge: "DISTORTION",
+                badgeType: "chip-danger"
+              },
+              {
+                activeNode: "p4",
+                phaseName: "CORRECT MINDSET",
+                title: "เลือกวิธีตามความหมายของข้อมูล",
+                desc: "หากเป็นตัวเลขต่อเนื่องให้ใช้ Median แทนค่า หรือหากแถวนั้นไม่สำคัญให้ใช้ <code>dropna()</code> ตัดแถวทิ้ง",
+                output: "กฎเหล็ก: ตัวเลขต่อเนื่อง -> ใช้ Median / ข้อมูลไม่สำคัญ -> dropna()",
+                tip: "ทุกการตัดสินใจ Clean ต้องมีเหตุผลรองรับเสมอ",
+                statusType: "success",
+                codeLine: "clean_df = df.dropna(subset=['height_cm'])",
+                codeBadge: "BEST PRACTICE",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 04
+      {
+        week: 4,
+        title: "Filter data",
+        badge: "WEEK 04 · CONDITIONAL FILTERING",
+        filename: "week04_filter_pipeline.py",
+        scenarios: [
+          {
+            id: "boolean_mask_clean",
+            name: "Boolean Mask & เชื่อมด้วย & (Series)",
+            type: "success",
+            nodes: [
+              { id: "f1", badge: "INPUT TABLE", title: "clean_df (20 คน)", sub: "ตารางนักเตะทั้งหมดที่ Clean แล้ว", phase: "blue" },
+              { id: "f2", badge: "SERIES MASK", title: "young: age <= 25", sub: "Series True/False รายคน (ดาวรุ่ง)", phase: "orange" },
+              { id: "f3", badge: "SERIES MASK", title: "star: overall >= 85", sub: "Series True/False รายคน (เก่ง)", phase: "orange" },
+              { id: "f4", badge: "DATAFRAME", title: "future_stars (4 คน)", sub: "กรองแถวด้วย & ระดับแถว", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "f1",
+                phaseName: "STARTING TABLE",
+                title: "โจทย์: ค้นหาดาวรุ่งฝีเท้าชั้นยอด",
+                desc: "เริ่มต้นจาก <code>clean_df</code> 20 คน โจทย์ต้องการหา: 'นักเตะอายุไม่เกิน 25 ปี และมี overall ตั้งแต่ 85 ขึ้นไป'",
+                output: "clean_df: 20 แถว, 15 คอลัมน์ พร้อมกรอง",
+                tip: "ใน Pandas เราไม่ต้องเขียน for loop วนตรวจทีละคน Pandas ตรวจทั้งคอลัมน์พร้อมกันได้ทันที",
+                statusType: "primary",
+                codeLine: "# 1. เริ่มจากตาราง clean_df ทั้งหมด",
+                codeBadge: "DATAFRAME",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "f2",
+                phaseName: "SERIES COMPARISON",
+                title: "สร้าง Boolean Mask ที่ 1 (อายุ <= 25)",
+                desc: "<code>df['age']</code> คือ Series 1 มิติ เมื่อเทียบ <code><= 25</code> จะได้ผลลัพธ์เป็น **Series ของ True/False รายคน**",
+                output: "young: [False, False, True, True, False, True, True...]\nTrue = อายุ <= 25, False = อายุเกิน",
+                tip: "Series เปรียบเหมือนเราดึงเสาข้อมูลออกมา 1 เสาจาก Excel เมื่อเทียบจะได้ True/False",
+                statusType: "primary",
+                codeLine: "young = clean_df['age'] <= 25",
+                codeBadge: "1D SERIES MASK",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "f3",
+                phaseName: "SERIES COMPARISON",
+                title: "สร้าง Boolean Mask ที่ 2 (คะแนน >= 85)",
+                desc: "สร้าง Series ของ True/False สำหรับคะแนน overall เช่นกัน เพื่อเตรียมนำไปผสานเงื่อนไข",
+                output: "star: [True, True, True, True, False, True, True...]\nTrue = overall >= 85",
+                tip: "ทั้งสอง Mask เป็น Series ที่มีความยาวเท่ากับจำนวนแถวของตาราง",
+                statusType: "primary",
+                codeLine: "star = clean_df['overall'] >= 85",
+                codeBadge: "1D SERIES MASK",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "f4",
+                phaseName: "BITWISE & FILTER",
+                title: "รวมเงื่อนไขด้วย & และกรองตาราง",
+                desc: "ใช้เครื่องหมาย <code>&</code> เชื่อมเงื่อนไขระดับแถว และใส่ใน <code>clean_df[young & star]</code> เพื่อคืนเฉพาะแถวที่เป็น True ทั้งคู่",
+                output: "ผลลัพธ์ดาวรุ่งยอดเยี่ยม 4 คน:\n- Erling Haaland (24 ปี, overall 91)\n- Jude Bellingham (21 ปี, overall 88)\n- Vinicius Jr (24 ปี, overall 89)\n- Bukayo Saka (23 ปี, overall 85)",
+                tip: "ต้องใช้ & และครอบวงเล็บ (c1) & (c2) เสมอ ห้ามใช้ and เด็ดขาด",
+                statusType: "success",
+                codeLine: "future_stars = clean_df[(young) & (star)]",
+                codeBadge: "OPERATOR (&)",
+                badgeType: "chip-green"
+              }
+            ]
+          },
+          {
+            id: "ambiguous_error",
+            name: "Error: เผลอใช้ and แทน & (Ambiguous)",
+            type: "danger",
+            nodes: [
+              { id: "q1", badge: "CODE ATTEMPT", title: "เผลอใช้ 'and'", sub: "(age <= 25) and (overall >= 85)", phase: "orange" },
+              { id: "q2", badge: "AMBIGUITY", title: "Series Ambiguous", sub: "Python ไม่รู้จะสรุป True/False รวมอย่างไร", phase: "pink" },
+              { id: "q3", badge: "VALUEERROR", title: "ValueError", sub: "The truth value of a Series is ambiguous", phase: "danger" },
+              { id: "q4", badge: "CORRECT FIX", title: "ใช้ & และวงเล็บ", sub: "(df['age']<=25) & (df['overall']>=85)", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "q1",
+                phaseName: "SYNTAX CONFUSION",
+                title: "ผู้เรียนเผลอใช้คำว่า and ตามไวยากรณ์ Python",
+                desc: "ผู้เรียนเขียน <code>clean_df['age'] <= 25 and clean_df['overall'] >= 85</code> ตามความคุ้นเคย",
+                output: "Evaluation: Series and Series -> Python tries to convert Series to single bool",
+                tip: "คำว่า and ของ Python ถูกออกแบบมาสำหรับตัวแปรค่าเดี่ยว เช่น x > 0 and y > 0",
+                statusType: "warning",
+                codeLine: "mask = clean_df['age'] <= 25 and clean_df['overall'] >= 85",
+                codeBadge: "PYTHON 'and'",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "q2",
+                phaseName: "LOGIC CLASH",
+                title: "Python สับสนเพราะ Series มีหลายคน",
+                desc: "Series มีข้อมูล 20 คน บางคน True บางคน False คำสั่ง <code>and</code> จึงไม่รู้ว่าควรสรุปทั้งก้อนเป็น True หรือ False",
+                output: "bool([False, True, False, True...]) -> Ambiguous! Can't decide single boolean.",
+                tip: "ความจริงของคนหลายคนรวมกัน ไม่สามารถบอกเป็น True หรือ False ค่าเดียวได้",
+                statusType: "danger",
+                codeLine: "# Python พยายามแปลง Series ทั้งก้อนเป็น bool เดี่ยว แต่ทำไม่ได้",
+                codeBadge: "AMBIGUOUS",
+                badgeType: "chip-pink"
+              },
+              {
+                activeNode: "q3",
+                phaseName: "VALUEERROR",
+                title: "Python โยน Error: Ambiguous Series",
+                desc: "ระบบแจ้งเตือน <code>ValueError: The truth value of a Series is ambiguous</code>",
+                output: "ValueError: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().",
+                tip: "เห็นคำว่า 'truth value of a Series is ambiguous' เมื่อไหร่ แปลว่าลืมเปลี่ยน and เป็น &",
+                statusType: "danger",
+                codeLine: "# ValueError: The truth value of a Series is ambiguous",
+                codeBadge: "VALUEERROR",
+                badgeType: "chip-danger"
+              },
+              {
+                activeNode: "q4",
+                phaseName: "BITWISE FIX",
+                title: "แก้เป็น & และครอบวงเล็บ",
+                desc: "เปลี่ยน <code>and</code> เป็น <code>&</code> (การเปรียบเทียบระดับแถว) พร้อมครอบวงเล็บแต่ละเงื่อนไข",
+                output: "Result: (clean_df['age'] <= 25) & (clean_df['overall'] >= 85) -> กรองสำเร็จ 4 คน!",
+                tip: "ใน Pandas: และ = & / หรือ = | / ไม่ใช่ = ~",
+                statusType: "success",
+                codeLine: "mask = (clean_df['age'] <= 25) & (clean_df['overall'] >= 85)",
+                codeBadge: "FIXED WITH &",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 05
+      {
+        week: 5,
+        title: "Analysis พื้นฐาน",
+        badge: "WEEK 05 · GROUPBY & AGGREGATION",
+        filename: "week05_analysis_pipeline.py",
+        scenarios: [
+          {
+            id: "groupby_mean",
+            name: "หาค่าเฉลี่ยแยกลีก (groupby + mean)",
+            type: "success",
+            nodes: [
+              { id: "g1", badge: "INPUT TABLE", title: "clean_df", sub: "ตารางนักเตะ 20 คนหลายลีก", phase: "blue" },
+              { id: "g2", badge: "SPLIT", title: ".groupby('league')", sub: "แบ่งข้อมูลออกเป็นกลุ่มตามลีก", phase: "purple" },
+              { id: "g3", badge: "APPLY STAT", title: "['overall'].mean()", sub: "คำนวณคะแนนเฉลี่ยแต่ละลีก", phase: "orange" },
+              { id: "g4", badge: "SORT & OUTPUT", title: ".sort_values()", sub: "เรียงจากคะแนนสูงไปต่ำ", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "g1",
+                phaseName: "PROBLEM STATEMENT",
+                title: "คำถาม: ลีกใดมีคะแนนเฉลี่ยสูงสุด?",
+                desc: "ข้อมูลดิบเป็นรายบุคคล แต่คำถามถามภาพรวมของลีก เราต้องยุบรวมข้อมูลนักเตะหลายคนเป็นค่าเฉลี่ยของกลุ่ม",
+                output: "20 players across leagues: Premier League, La Liga, MLS, SPL, Bundesliga",
+                tip: "เมื่อคำถามถามภาพรวม ให้คิดถึงคำสั่ง groupby เสมอ",
+                statusType: "primary",
+                codeLine: "# โจทย์: ลีกใดมี overall เฉลี่ยสูงที่สุด?",
+                codeBadge: "RAW DATA",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "g2",
+                phaseName: "SPLIT PHASE",
+                title: "แบ่งกลุ่มด้วย groupby('league')",
+                desc: "คำสั่ง <code>groupby('league')</code> ทำหน้าที่แยกข้อมูลออกเป็นตะกร้าตามชื่อลีก แต่ยังไม่ได้เริ่มคำนวณ",
+                output: "Grouped by league: La Liga (4), Premier League (8), MLS (1), SPL (2)...",
+                tip: "groupby ยังไม่ใช่คำตอบ จนกว่าจะตามด้วยฟังก์ชันคำนวณสถิติ เช่น .mean()",
+                statusType: "primary",
+                codeLine: "by_league = clean_df.groupby('league')['overall']",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "g3",
+                phaseName: "APPLY STAT",
+                title: "คำนวณค่าเฉลี่ยด้วย mean()",
+                desc: "คำนวณค่าเฉลี่ยหนึ่งค่าต่อหนึ่งลีก ได้ผลลัพธ์เป็น Series ที่มีชื่อลีกเป็น Index",
+                output: "La Liga: 89.5\nMLS: 90.0\nPremier League: 87.2\nSaudi Pro League: 86.0",
+                tip: "mean() คำนวณผลรวมหารด้วยจำนวนสมาชิกในกลุ่ม",
+                statusType: "success",
+                codeLine: "league_mean = by_league.mean()",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "g4",
+                phaseName: "ORDERING",
+                title: "เรียงลำดับจากมากไปน้อย",
+                desc: "ใช้ <code>sort_values(ascending=False)</code> เพื่อให้อ่านคำตอบและสรุปอันดับได้ทันที",
+                output: "MLS                90.0  (มี Messi 1 คน!)\nLa Liga            89.5\nPremier League     87.2\nSaudi Pro League   86.0",
+                tip: "การเรียงลำดับช่วยให้การนำเสนอผลลัพธ์ชัดเจนและตอบคำถามได้ตรงจุด",
+                statusType: "success",
+                codeLine: "league_mean.sort_values(ascending=False)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          },
+          {
+            id: "agg_multiple",
+            name: "ดูหลายมุมด้วย .agg() (Safe Analysis)",
+            type: "warning",
+            nodes: [
+              { id: "a1", badge: "GROUPBY", title: "groupby('league')", sub: "แบ่งกลุ่มตามชื่อลีก", phase: "purple" },
+              { id: "a2", badge: "MULTI AGG", title: ".agg(['count','mean'])", sub: "ดูทั้งจำนวนคนและค่าเฉลี่ย", phase: "orange" },
+              { id: "a3", badge: "CHECK N", title: "ตรวจ Sample Size", sub: "พบว่า MLS มีเพียง 1 คน!", phase: "pink" },
+              { id: "a4", badge: "RESPONSIBLE", title: "สรุปอย่างรับผิดชอบ", sub: "รายงานตัวเลขพร้อมข้อจำกัด", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "a1",
+                phaseName: "SKEPTICISM",
+                title: "อย่าด่วนสรุปจากค่าเฉลี่ยอย่างเดียว",
+                desc: "เมื่อเห็นตัวเลขว่า MLS ค่าเฉลี่ย 90.0 เราต้องเอะใจว่าในข้อมูลมีนักเตะลีกนั้นกี่คน",
+                output: "MLS mean = 90.0... เอ๊ะ แล้วมีนักเตะกี่คนในชุดข้อมูล?",
+                tip: "นักวิเคราะห์ข้อมูลที่ดีจะไม่เชื่อค่าเฉลี่ยเดี่ยวๆ โดยไม่ตรวจจำนวนตัวอย่าง (Sample Size)",
+                statusType: "warning",
+                codeLine: "by_league = clean_df.groupby('league')['overall']",
+                codeBadge: "GROUPBY",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "a2",
+                phaseName: "AGGREGATION",
+                title: "คำนวณหลายสถิติพร้อมกันด้วย .agg()",
+                desc: "ใช้ <code>.agg(['count', 'mean', 'median'])</code> เพื่อดึงทั้งจำนวนนับ ค่าเฉลี่ย และค่ากลางในตารางเดียว",
+                output: "league            count   mean   median\nLa Liga               4   89.5     89.0\nMLS                   1   90.0     90.0\nPremier League        8   87.2     87.0",
+                tip: ".agg() รับ List ของชื่อฟังก์ชัน เช่น ['count', 'mean', 'median']",
+                statusType: "primary",
+                codeLine: "stats = by_league.agg(['count', 'mean', 'median'])",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "a3",
+                phaseName: "CRITICAL FINDING",
+                title: "พบความจริง: MLS มีนักเตะเพียง 1 คน",
+                desc: "MLS มี count = 1 (คือ Messi คนเดียว) ค่าเฉลี่ย 90.0 จึงเป็นคะแนนของคนคนเดียว ไม่ใช่ตัวแทนของทั้งลีก",
+                output: "MLS count = 1! สรุปว่า 'MLS เป็นลีกที่ดีที่สุด' จึงเป็นข้อสรุปที่ผิดพลาด",
+                tip: "Sample size ต่างกันมาก ต้องระวังการเปรียบเทียบข้ามกลุ่ม",
+                statusType: "danger",
+                codeLine: "# ข้อควรระวัง: MLS มี n=1 ไม่สามารถเป็นตัวแทนทั้งลีกได้",
+                codeBadge: "INSIGHT CHECK",
+                badgeType: "chip-pink"
+              },
+              {
+                activeNode: "a4",
+                phaseName: "RESPONSIBLE REPORT",
+                title: "สรุปผลพร้อมระบุข้อจำกัดอย่างมืออาชีพ",
+                desc: "รายงานข้อค้นพบว่า La Liga มีคะแนนเฉลี่ยสูงโดยมีกลุ่มตัวอย่าง 4 คน ขณะที่ MLS มีเพียง 1 คน",
+                output: "สรุป: ลีกสเปน (La Liga) มีคะแนนเฉลี่ยสูงสุดในกลุ่มที่มีตัวอย่างเพียงพอ (89.5, n=4)",
+                tip: "ความน่าเชื่อถือของ Data Scientist อยู่ที่ความซื่อสัตย์ต่อหลักฐาน",
+                statusType: "success",
+                codeLine: "stats.sort_values('count', ascending=False)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 06
+      {
+        week: 6,
+        title: "Visualization",
+        badge: "WEEK 06 · DATA VISUALIZATION",
+        filename: "week06_visualization_pipeline.py",
+        scenarios: [
+          {
+            id: "barchart_flow",
+            name: "สร้างกราฟแท่ง Top 5 (Matplotlib)",
+            type: "success",
+            nodes: [
+              { id: "v1", badge: "METHOD", title: ".nlargest(5)", sub: "ดึง 5 แถวที่คะแนนสูงสุด", phase: "blue" },
+              { id: "v2", badge: "FUNCTION", title: "plt.bar()", sub: "วาดกราฟแท่งเปรียบเทียบ", phase: "purple" },
+              { id: "v3", badge: "FUNCTION", title: "plt.ylabel()", sub: "ใส่ชื่อแกนบอกความหมาย", phase: "orange" },
+              { id: "v4", badge: "FUNCTION", title: "plt.savefig()", sub: "บันทึกภาพสำหรับส่งมอบ", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "v1",
+                phaseName: "PREPARE TOP N",
+                title: "เลือก Top 5 ด้วย .nlargest()",
+                desc: "ใช้ <code>clean_df.nlargest(5, 'overall')</code> เพื่อดึง 5 อันดับแรก ไม่ต้องเสียเวลาเรียงทั้งตาราง",
+                output: "Top 5: Mbappe (91), Haaland (91), Messi (90), Vinicius (89), De Bruyne (88)",
+                tip: "nlargest เป็น Method สะดวกกว่าการ sort ทั้งตารางเมื่อต้องการเพียงไม่กี่อันดับแรก",
+                statusType: "primary",
+                codeLine: "top5 = clean_df.nlargest(5, 'overall')",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "v2",
+                phaseName: "DRAW PLOT",
+                title: "วาดกราฟแท่งด้วย plt.bar()",
+                desc: "ส่ง Series ของชื่อเป็นแกน X และคะแนน overall เป็นแกน Y เพื่อให้ความสูงของแท่งแสดงค่าชัดเจน",
+                output: "Plotting 5 bars: X=names, Y=overall, color='teal'",
+                tip: "plt.bar() เป็น Function ของ Matplotlib ต้องมี () และส่งแกน X กับ Y ที่มีจำนวนเท่ากัน",
+                statusType: "primary",
+                codeLine: "plt.bar(top5['name'], top5['overall'], color='teal')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "v3",
+                phaseName: "LABEL AXES",
+                title: "ใส่ชื่อแกนและหมุนข้อความไม่ให้ทับกัน",
+                desc: "ใส่ชื่อแกน Y ด้วย <code>plt.ylabel('Overall rating')</code> และหมุนชื่อนักเตะ 25 องศาด้วย <code>plt.xticks()</code>",
+                output: "Axis Y: 'Overall rating'\nAxis X: Rotated 25 degrees with right alignment",
+                tip: "กราฟที่ไม่มีชื่อแกนจะทำให้ผู้ดูตีความหมายตัวเลขผิดได้ง่าย",
+                statusType: "success",
+                codeLine: "plt.ylabel('Overall rating')\nplt.xticks(rotation=25, ha='right')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "v4",
+                phaseName: "EXPORT ARTIFACT",
+                title: "บันทึกกราฟเป็นไฟล์ภาพ",
+                desc: "จัดระยะขอบด้วย <code>plt.tight_layout()</code> แล้วบันทึกไฟล์ภาพด้วย <code>plt.savefig('top5.png')</code>",
+                output: "Saved: top5_players.png (DPI=300) ready for presentation!",
+                tip: "ควรเรียก savefig() ก่อน plt.show() มิฉะนั้นจะได้ภาพว่างเปล่า",
+                statusType: "success",
+                codeLine: "plt.tight_layout()\nplt.savefig('top5_players.png')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 07
+      {
+        week: 7,
+        title: "เล่าเรื่องจากข้อมูล",
+        badge: "WEEK 07 · DATA STORYTELLING",
+        filename: "week07_storytelling_pipeline.py",
+        scenarios: [
+          {
+            id: "story_flow",
+            name: "สร้างประโยคสรุปพร้อมหลักฐานและข้อจำกัด",
+            type: "success",
+            nodes: [
+              { id: "s1", badge: "DATAFRAME", title: "ตารางผลสถิติ", sub: "ตารางเรียงลำดับจาก Week 05", phase: "blue" },
+              { id: "s2", badge: "PROPERTY", title: "result.iloc[0]", sub: "หยิบแถวแรก (Index Location)", phase: "orange" },
+              { id: "s3", badge: "SYNTAX", title: "f-string ข้อความ", sub: "แทรกตัวแปรและฟอร์แมตเลข", phase: "purple" },
+              { id: "s4", badge: "CAVEAT", title: "ระบุข้อจำกัดข้อมูล", sub: "ไม่เคลมเกินสิ่งที่ข้อมูลมี", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "s1",
+                phaseName: "EVIDENCE TABLE",
+                title: "เริ่มจากหลักฐานที่เป็นตัวเลขจริง",
+                desc: "การเล่าเรื่องที่ดีต้องมีหลักฐานตัวเลขรองรับ ไม่เริ่มจากความรู้สึกส่วนตัว",
+                output: "result: La Liga mean=89.5 (n=4), Premier League mean=87.2 (n=8)...",
+                tip: "ตัวเลขในตารางคือหลักฐานเชิงประจักษ์",
+                statusType: "primary",
+                codeLine: "result = clean_df.groupby('league', as_index=False)['overall'].mean()\nresult = result.sort_values('overall', ascending=False)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "s2",
+                phaseName: "INDEXER PROPERTY",
+                title: "หยิบแถวแรกด้วย iloc[0]",
+                desc: "ใช้ Property <code>result.iloc[0]</code> เพื่อเลือกแถวที่มีค่าเฉลี่ยสูงสุด **ห้ามใส่วงเล็บ ()** เพราะเป็น Indexer",
+                output: "best['league'] -> 'La Liga'\nbest['overall'] -> 89.5",
+                tip: "iloc เป็น Property เข้าถึงข้อมูลตามตำแหน่งแถวด้วยเครื่องหมายก้ามปู [0] ห้ามใส่ ()",
+                statusType: "primary",
+                codeLine: "best = result.iloc[0]",
+                codeBadge: "PROPERTY (ไม่มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "s3",
+                phaseName: "F-STRING SYNTAX",
+                title: "สร้างประโยคสรุปด้วย f-string",
+                desc: "แทรกตัวแปรลงในข้อความ <code>f\"ในชุดข้อมูลนี้ {best['league']} มี overall เฉลี่ย {best['overall']:.1f}\"</code>",
+                output: "message: 'ในชุดข้อมูลนี้ La Liga มี overall เฉลี่ย 89.5'",
+                tip: "คำว่า 'ในชุดข้อมูลนี้' ช่วยจำกัดขอบเขตไม่ให้คนฟังเข้าใจผิดว่าเป็นความจริงของทั้งโลก",
+                statusType: "success",
+                codeLine: "message = f\"ในชุดข้อมูลนี้ {best['league']} มี overall เฉลี่ย {best['overall']:.1f}\"",
+                codeBadge: "SYNTAX",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "s4",
+                phaseName: "CAVEAT & CONTEXT",
+                title: "ปิดท้ายด้วยข้อจำกัดของข้อมูลเสมอ",
+                desc: "เพิ่มประโยคข้อจำกัดเพื่อความรอบคอบ: 'แต่จำนวนตัวอย่างในแต่ละลีกอาจแตกต่างกัน'",
+                output: "Full Insight: 'ในชุดข้อมูลนี้ La Liga มี overall เฉลี่ย 89.5 แต่จำนวนตัวอย่างในแต่ละลีกอาจแตกต่างกัน'",
+                tip: "การระบุข้อจำกัดแสดงถึงความเชี่ยวชาญและความน่าเชื่อถือของนักวิเคราะห์",
+                statusType: "success",
+                codeLine: "print(message + ' (ข้อจำกัด: จำนวนตัวอย่างในแต่ละลีกอาจแตกต่างกัน)')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 08
+      {
+        week: 8,
+        title: "Machine Learning เบื้องต้น",
+        badge: "WEEK 08 · MACHINE LEARNING",
+        filename: "week08_machine_learning_pipeline.py",
+        scenarios: [
+          {
+            id: "ml_pipeline",
+            name: "เทรนโมเดลและทำนายข้อมูลใหม่ (Unseen Data)",
+            type: "success",
+            nodes: [
+              { id: "m1", badge: "SPLIT X/y", title: "X (2D) & y (1D)", sub: "X: ตาราง 4 สถิติ / y: มูลค่า", phase: "blue" },
+              { id: "m2", badge: "FUNCTION", title: "train_test_split", sub: "แบ่ง 80% เทรน / 20% ทดสอบ", phase: "purple" },
+              { id: "m3", badge: "METHOD", title: "model.fit() & MAE", sub: "เรียนรู้ค่าน้ำหนัก วัดผลแม่นยำ", phase: "orange" },
+              { id: "m4", badge: "METHOD", title: "model.predict()", sub: "ประเมินราคานักเตะชุดใหม่", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "m1",
+                phaseName: "FEATURE / TARGET",
+                title: "แยก Features (X) และ Target (y)",
+                desc: "Features $X$ ต้องเป็นตาราง 2 มิติ (DataFrame `[[ ]]`) และ Target $y$ เป็น Series 1 มิติ (`['value_millions']`)",
+                output: "X: [overall, age, pace, shooting] (ตาราง 2 มิติ 4 คอลัมน์)\ny: [value_millions] (เสาข้อมูล 1 มิติ)",
+                tip: "โมเดลต้องการ Features X เป็นตาราง 2 มิติเสมอ อย่าลืมใส่วงเล็บคู่ [[ ]]",
+                statusType: "primary",
+                codeLine: "features = ['overall', 'age', 'pace', 'shooting']\nX = clean_df[features]\ny = clean_df['value_millions']",
+                codeBadge: "SYNTAX",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "m2",
+                phaseName: "TRAIN TEST SPLIT",
+                title: "แบ่งชุดฝึกสอนและชุดทดสอบ",
+                desc: "ใช้ Function <code>train_test_split(test_size=0.2)</code> แบ่งข้อมูล 80% ไว้สอน และกัน 20% ไว้สอบวัดผลจริง",
+                output: "Train set: 16 คน (สำหรับสอนโมเดล)\nTest set: 4 คน (สำหรับวัดความแม่นยำ)",
+                tip: "ห้ามนำข้อมูลชุด Test ไปให้โมเดลเห็นตอนฝึกสอนเด็ดขาด เพื่อป้องกันการแอบจำข้อสอบ",
+                statusType: "primary",
+                codeLine: "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "m3",
+                phaseName: "MODEL FIT & EVAL",
+                title: "สอนโมเดลด้วย .fit() และวัดค่า MAE",
+                desc: "Method <code>.fit()</code> ให้โมเดลเรียนรู้ค่าน้ำหนัก แล้ววัดความคลาดเคลื่อน MAE เทียบกับราคาจริง",
+                output: "Baseline MAE (เดาค่าเฉลี่ย): 38.5 ล้าน\nModel MAE (LinearRegression): 18.2 ล้าน (ผิดพลาดลดลงกว่าครึ่ง!)",
+                tip: "model.fit() และ model.predict() เป็น Method มีวงเล็บ () เสมอ",
+                statusType: "success",
+                codeLine: "model = LinearRegression().fit(X_train, y_train)\ny_pred = model.predict(X_test)\nmae = mean_absolute_error(y_test, y_pred)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "m4",
+                phaseName: "PREDICT UNSEEN",
+                title: "นำโมเดลไปทำนายราคานักเตะดาวรุ่งชุดใหม่",
+                desc: "โหลดไฟล์ <code>scouted_players.csv</code> (นักเตะใหม่ที่ยังไม่มีราคา) แล้วสั่ง <code>model.predict(X_new)</code>",
+                output: "Unseen Data Predictions:\n- Lamine Yamal (overall 84, age 17) -> ราคาประเมิน: 108.5 ล้าน!\n- Endrick (overall 80, age 18) -> ราคาประเมิน: 65.2 ล้าน!",
+                tip: "นี่คือพลังที่แท้จริงของ Machine Learning: การทำนายอนาคตกับข้อมูลที่ไม่เคยเห็นมาก่อน",
+                statusType: "success",
+                codeLine: "new_players = pd.read_csv('../data/scouted_players.csv')\nnew_players['predicted_value'] = model.predict(new_players[features]).round(1)",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 09
+      {
+        week: 9,
+        title: "Mini project: สำรวจ",
+        badge: "WEEK 09 · EXPLORATORY DATA ANALYSIS",
+        filename: "week09_mini_project_eda.py",
+        scenarios: [
+          {
+            id: "eda_flow",
+            name: "ตั้งคำถาม ตรวจสเปก และวางแผน 4 บรรทัด",
+            type: "success",
+            nodes: [
+              { id: "e1", badge: "QUESTION", title: "ตั้งโจทย์ 1 ข้อ", sub: "'ตำแหน่งใดมีค่าตัวเฉลี่ยสูงสุด?'", phase: "blue" },
+              { id: "e2", badge: "PROPERTY", title: "df.columns & dtypes", sub: "ตรวจว่ามี position และ value", phase: "purple" },
+              { id: "e3", badge: "METHOD", title: ".value_counts()", sub: "นับจำนวนคนต่อตำแหน่ง", phase: "orange" },
+              { id: "e4", badge: "PLAN", title: "แผนงาน 4 บรรทัด", sub: "คำถาม -> คอลัมน์ -> Clean -> กราฟ", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "e1",
+                phaseName: "FOCUS QUESTION",
+                title: "เริ่มจากคำถามที่ชัดเจนและวัดผลได้",
+                desc: "การทำ Data Project ต้องเริ่มจากคำถามเดียวที่วัดได้จากข้อมูลจริง: 'ตำแหน่งนักเตะใดมีมูลค่าตัวเฉลี่ยสูงสุด?'",
+                output: "Target Question: 'ตำแหน่งนักเตะใดมีค่าตัวเฉลี่ยสูงสุด?'",
+                tip: "คำถามที่ดีต้องสามารถตอบได้ด้วยข้อมูลที่มีอยู่ในไฟล์",
+                statusType: "primary",
+                codeLine: "question = 'ตำแหน่งใดมีค่าตัวเฉลี่ยสูงสุด?'",
+                codeBadge: "SYNTAX",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "e2",
+                phaseName: "SPEC INSPECTION",
+                title: "ตรวจสอบ Property คอลัมน์และชนิดข้อมูล",
+                desc: "ใช้ <code>df.columns</code> และ <code>df.dtypes</code> ตรวจว่าคอลัมน์มีจริง และค่าตัวเป็นตัวเลข float64 หรือไม่",
+                output: "position: object (text)\nvalue_millions: float64 (numeric)\nMissing values: 0",
+                tip: "ห้ามใส่ () หลัง columns หรือ dtypes เพราะเป็น Property",
+                statusType: "primary",
+                codeLine: "clean_df[['position', 'value_millions']].info()",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "e3",
+                phaseName: "SAMPLE SIZE CHECK",
+                title: "นับจำนวนนักเตะในแต่ละตำแหน่ง",
+                desc: "ใช้ Method <code>df['position'].value_counts()</code> เพื่อดูว่าแต่ละตำแหน่งมีตัวอย่างกี่คน",
+                output: "ST: 6 คน\nRW: 4 คน\nLW: 4 คน\nCM: 3 คน\nCAM: 2 คน\nGK: 1 คน",
+                tip: "value_counts() ช่วยให้เราเห็นว่าตำแหน่งใดมีตัวอย่างน้อยเกินไป",
+                statusType: "primary",
+                codeLine: "clean_df['position'].value_counts()",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "e4",
+                phaseName: "ROADMAP FORMULATION",
+                title: "เขียนแผนงาน 4 บรรทัดก่อนเขียนโค้ด",
+                desc: "สรุปแผนงาน: 1. คำถาม 2. คอลัมน์ที่ใช้ 3. การจัดการข้อมูล 4. รูปแบบกราฟ",
+                output: "1. คำถาม: ตำแหน่งใดมีค่าตัวเฉลี่ยสูงสุด\n2. คอลัมน์: position, value_millions\n3. Clean: ตรวจ missing แล้ว สมบูรณ์ 20/20\n4. กราฟ: Bar chart เปรียบเทียบตำแหน่ง",
+                tip: "การวางแผนช่วยป้องกันการลองเขียนโค้ดไปเรื่อยๆ โดยไร้ทิศทาง",
+                statusType: "success",
+                codeLine: "# แผน 4 บรรทัดชัดเจน พร้อมลงมือวิเคราะห์ในสัปดาห์หน้า",
+                codeBadge: "PROJECT PLAN",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      },
+
+      // Week 10
+      {
+        week: 10,
+        title: "Mini project: นำเสนอ",
+        badge: "WEEK 10 · REPRODUCIBILITY & DELIVERY",
+        filename: "week10_mini_project_delivery.py",
+        scenarios: [
+          {
+            id: "delivery_pipeline",
+            name: "Notebook แบบเส้นตรง & ส่งมอบงาน (Reproducible)",
+            type: "success",
+            nodes: [
+              { id: "r1", badge: "FUNCTION", title: "pd.read_csv()", sub: "โหลดข้อมูลต้นฉบับซ้ำได้", phase: "blue" },
+              { id: "r2", badge: "CHAINING", title: "Data Pipeline", sub: "groupby + mean + sort", phase: "purple" },
+              { id: "r3", badge: "FUNCTION", title: "plt.savefig()", sub: "ส่งออกกราฟสำหรับรายงาน", phase: "orange" },
+              { id: "r4", badge: "TEST PASS", title: "Restart & Run All", sub: "รันผ่านฉลุย คนอื่นรันซ้ำได้", phase: "green" }
+            ],
+            steps: [
+              {
+                activeNode: "r1",
+                phaseName: "DATA INGESTION",
+                title: "อ่านไฟล์จากต้นฉบับ ไม่พึ่งพาตัวแปรลอย",
+                desc: "เริ่มไฟล์ด้วยการโหลดข้อมูลจาก CSV เพื่อให้ใครก็ตามที่เปิด Notebook สามารถรันได้โดยไม่พัง",
+                output: "Loading: ../data/footballers.csv -> df ready",
+                tip: "โปรเจกต์ที่ดีต้องไม่พึ่งพาตัวแปรที่เคยแอบรันไว้ใน Memory",
+                statusType: "primary",
+                codeLine: "import pandas as pd\ndf = pd.read_csv('../data/footballers.csv')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-blue"
+              },
+              {
+                activeNode: "r2",
+                phaseName: "PIPELINE CHAINING",
+                title: "สร้างสายคำนวณแบบ Method Chaining",
+                desc: "จัดกลุ่มตามตำแหน่ง คำนวณค่าเฉลี่ย และเรียงลำดับจากมากไปน้อยในคำสั่งเดียว",
+                output: "Position Values:\nST: 110.2M\nRW: 95.0M\nLW: 92.5M\nCM: 78.0M",
+                tip: "Method Chaining ช่วยให้อ่านลำดับการแปลงข้อมูลจากบนลงล่างได้ชัดเจน",
+                statusType: "primary",
+                codeLine: "result = (df.groupby('position')['value_millions']\n          .mean().sort_values(ascending=False))",
+                codeBadge: "METHOD (มี ())",
+                badgeType: "chip-purple"
+              },
+              {
+                activeNode: "r3",
+                phaseName: "EXPORT REPORT",
+                title: "สร้างและบันทึกกราฟแท่ง",
+                desc: "สร้างกราฟแท่งพร้อมชื่อแกนที่ชัดเจน แล้วเซฟเป็นไฟล์ภาพ <code>plt.savefig('position_value.png')</code>",
+                output: "Saved: position_value.png ready for presentation slides!",
+                tip: "กราฟส่งมอบต้องมีชื่อกราฟและชื่อแกนครบถ้วนเสมอ",
+                statusType: "success",
+                codeLine: "result.plot.bar(title='Average Value by Position', color='teal')\nplt.tight_layout()\nplt.savefig('position_value.png')",
+                codeBadge: "FUNCTION (มี ())",
+                badgeType: "chip-orange"
+              },
+              {
+                activeNode: "r4",
+                phaseName: "REPRODUCIBILITY",
+                title: "ทดสอบ Restart Kernel -> Run All",
+                desc: "หัวใจสูงสุดของ Data Science: กด Restart Kernel แล้ว Run All จากต้นจนจบ ทุก cell ต้องรันผ่านฉลุย",
+                output: "Executed cells [1..12] in order without errors! 100% Reproducible.",
+                tip: "งานที่คนอื่นรันซ้ำแล้วได้ผลตรงกัน คืองานที่มีคุณค่าสูงสุดในโลกจริง",
+                statusType: "success",
+                codeLine: "# Restart & Run All ผ่านสมบูรณ์! พร้อมส่งงาน",
+                codeBadge: "REPRODUCIBLE ✓",
+                badgeType: "chip-green"
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       Coordinate System & Visualizer Engine (Skill Sections 3, 4, 5, 6)
+       ========================================================================== */
+    const VW = 1200, VH = 440;
+    const pctX = v => `${((v / VW) * 100).toFixed(2)}%`;
+    const pctY = v => `${((v / VH) * 100).toFixed(2)}%`;
+
+    // Standard POS configuration for 4 nodes
+    const POS_LAYOUT = [
+      { x: 45,  y: 155, w: 225, h: 125 },  // Node 0
+      { x: 335, y: 155, w: 235, h: 125 },  // Node 1
+      { x: 635, y: 155, w: 235, h: 125 },  // Node 2
+      { x: 935, y: 155, w: 225, h: 125 }   // Node 3
+    ];
+
+    // Node center points for the ROUTE path
+    const NODE_CENTERS = [
+      { x: 157.5, y: 217.5 },
+      { x: 452.5, y: 217.5 },
+      { x: 752.5, y: 217.5 },
+      { x: 1047.5, y: 217.5 }
+    ];
+
+    // State
+    let currentWeekIdx = 0;
+    let currentScenarioIdx = 0;
+    let currentStepIdx = 0;
+    let autoPlayTimer = null;
+
+    // DOM References
+    const weekSelectEl = document.getElementById('weekSelect');
+    const topicBadgeEl = document.getElementById('topicBadge');
+    const topicTitleEl = document.getElementById('topicTitle');
+    const scenarioTabsEl = document.getElementById('scenarioTabs');
+    const stepDisplayEl = document.getElementById('stepDisplay');
+    const playBtnEl = document.getElementById('playBtn');
+    const prevBtnEl = document.getElementById('prevBtn');
+    const nextBtnEl = document.getElementById('nextBtn');
+    
+    const svgLanesEl = document.getElementById('svgLanes');
+    const svgConnectorsEl = document.getElementById('svgConnectors');
+    const motionAnimEl = document.getElementById('motionAnim');
+    const htmlOverlayEl = document.getElementById('htmlOverlay');
+
+    const phaseBadgeEl = document.getElementById('phaseBadge');
+    const phaseTextEl = document.getElementById('phaseText');
+    const progressDotsEl = document.getElementById('progressDots');
+    const infoTitleEl = document.getElementById('infoTitle');
+    const infoDescEl = document.getElementById('infoDesc');
+    const infoTipEl = document.getElementById('infoTip');
+    const infoTipTextEl = document.getElementById('infoTipText');
+    const termBodyEl = document.getElementById('termBody');
+
+    const macFilenameEl = document.getElementById('macFilename');
+    const codeLinesWrapEl = document.getElementById('codeLinesWrap');
+
+    // Color helper (Theme-aware)
+    function getPhaseColor(phase) {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        switch (phase) {
+          case 'blue': return '#58a6ff';
+          case 'purple': return '#bc8cff';
+          case 'green': return '#3fb950';
+          case 'orange': return '#f0883e';
+          case 'pink': return '#f778ba';
+          case 'danger': return '#f43f5e';
+          default: return '#58a6ff';
+        }
+      } else {
+        switch (phase) {
+          case 'blue': return '#0284c7';
+          case 'purple': return '#7c3aed';
+          case 'green': return '#16a34a';
+          case 'orange': return '#ea580c';
+          case 'pink': return '#db2777';
+          case 'danger': return '#e11d48';
+          default: return '#0284c7';
+        }
+      }
+    }
+
+    function getMarkerForPhase(phase) {
+      switch (phase) {
+        case 'blue': return 'url(#arrBlue)';
+        case 'purple': return 'url(#arrPurple)';
+        case 'green': return 'url(#arrGreen)';
+        case 'orange': return 'url(#arrOrange)';
+        case 'pink': return 'url(#arrPink)';
+        case 'danger': return 'url(#arrDanger)';
+        default: return 'url(#arrBlue)';
+      }
+    }
+
+    /* ==========================================================================
+       Theme System (Default Light, Optional Dark)
+       ========================================================================== */
+    function getStoredTheme() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('theme') === 'dark') return 'dark';
+        if (urlParams.get('theme') === 'light') return 'light';
+        const saved = localStorage.getItem('data_sci_viz_theme');
+        if (saved === 'dark' || saved === 'light') return saved;
+      } catch (e) {}
+      return 'light'; // Default: Clean Light Theme
+    }
+
+    function updateSvgMarkers() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      const blue = isDark ? '#58a6ff' : '#0284c7';
+      const purple = isDark ? '#bc8cff' : '#7c3aed';
+      const green = isDark ? '#3fb950' : '#16a34a';
+      const orange = isDark ? '#f0883e' : '#ea580c';
+      const pink = isDark ? '#f778ba' : '#db2777';
+      const danger = isDark ? '#f43f5e' : '#e11d48';
+      const particle = isDark ? '#ffffff' : '#0284c7';
+      const particleStroke = isDark ? 'none' : '#ffffff';
+
+      const setFill = (id, color) => {
+        const el = document.querySelector(`#${id} path`);
+        if (el) el.setAttribute('fill', color);
+      };
+
+      setFill('arrBlue', blue);
+      setFill('arrPurple', purple);
+      setFill('arrGreen', green);
+      setFill('arrOrange', orange);
+      setFill('arrPink', pink);
+      setFill('arrDanger', danger);
+
+      const pEl = document.getElementById('travelParticle');
+      if (pEl) {
+        pEl.setAttribute('fill', particle);
+        pEl.setAttribute('stroke', particleStroke);
+        pEl.setAttribute('stroke-width', particleStroke === 'none' ? '0' : '1.5');
+      }
+    }
+
+    function setTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('data_sci_viz_theme', theme);
+      } catch (e) {}
+
+      const iconEl = document.getElementById('themeIcon');
+      const labelEl = document.getElementById('themeLabel');
+      if (iconEl && labelEl) {
+        if (theme === 'dark') {
+          iconEl.textContent = '☀️';
+          labelEl.textContent = 'โหมดสว่าง';
+        } else {
+          iconEl.textContent = '🌙';
+          labelEl.textContent = 'โหมดมืด';
+        }
+      }
+
+      updateSvgMarkers();
+      renderLanes();
+      renderConnectors();
+      updateUI();
+    }
+
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme') || 'light';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    function initTheme() {
+      const initialTheme = getStoredTheme();
+      document.body.setAttribute('data-theme', initialTheme);
+      const iconEl = document.getElementById('themeIcon');
+      const labelEl = document.getElementById('themeLabel');
+      if (iconEl && labelEl) {
+        if (initialTheme === 'dark') {
+          iconEl.textContent = '☀️';
+          labelEl.textContent = 'โหมดสว่าง';
+        } else {
+          iconEl.textContent = '🌙';
+          labelEl.textContent = 'โหมดมืด';
+        }
+      }
+      updateSvgMarkers();
+    }
+
+    /* ==========================================================================
+       Tokenizer (Pattern C from Skill)
+       ========================================================================== */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function tokenizePython(line) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('#')) {
+        return `<span class="tok-comment">${escapeHtml(line)}</span>`;
+      }
+
+      const tokenRegex = /(#[^\n]*)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b(?:import|from|as|def|return|for|if|else|elif|in|and|or|not|with|class|pass|assert)\b)|(\b(?:True|False|None)\b)|(\b\d+(?:\.\d+)?\b)|(\b(?:read_csv|head|info|isna|sum|median|fillna|dropna|assign|rename|copy|query|groupby|mean|agg|sort_values|nlargest|bar|xlabel|ylabel|xticks|tight_layout|savefig|show|reset_index|iloc|round|describe|value_counts|train_test_split|fit|predict|mean_absolute_error|print|len)\b)|([&|><!=+\-*/%]+)|([a-zA-Z_]\w*)|([^\s\w])/g;
+
+      let html = '';
+      let match;
+
+      while ((match = tokenRegex.exec(line)) !== null) {
+        const [full, comment, str, kw, boolVal, num, fn, op, ident, punct] = match;
+        if (comment) {
+          html += `<span class="tok-comment">${escapeHtml(comment)}</span>`;
+        } else if (str) {
+          html += `<span class="tok-string">${escapeHtml(str)}</span>`;
+        } else if (kw) {
+          html += `<span class="tok-keyword">${escapeHtml(kw)}</span>`;
+        } else if (boolVal) {
+          html += `<span class="tok-bool">${escapeHtml(boolVal)}</span>`;
+        } else if (num) {
+          html += `<span class="tok-number">${escapeHtml(num)}</span>`;
+        } else if (fn) {
+          html += `<span class="tok-fn">${escapeHtml(fn)}</span>`;
+        } else if (op) {
+          html += `<span class="tok-op">${escapeHtml(op)}</span>`;
+        } else if (ident) {
+          html += `<span class="tok-ident">${escapeHtml(ident)}</span>`;
+        } else if (punct) {
+          html += `<span class="tok-punct">${escapeHtml(punct)}</span>`;
+        }
+      }
+      return html || escapeHtml(line);
+    }
+
+    /* ==========================================================================
+       Render Functions
+       ========================================================================== */
+    function renderLanes() {
+      const isDanger = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx].type === 'danger';
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+
+      const lane1Stroke = isDark ? 'rgba(88, 166, 255, 0.2)' : '#bae6fd';
+      const lane1Fill = isDark ? 'none' : 'rgba(2, 132, 199, 0.035)';
+      const lane1Color = getPhaseColor('blue');
+
+      const lane2Stroke = isDanger ? (isDark ? 'rgba(244, 63, 94, 0.25)' : '#fecdd3') : (isDark ? 'rgba(188, 140, 255, 0.2)' : '#ddd6fe');
+      const lane2Fill = isDanger ? (isDark ? 'none' : 'rgba(225, 29, 72, 0.035)') : (isDark ? 'none' : 'rgba(124, 58, 237, 0.035)');
+      const lane2Color = isDanger ? getPhaseColor('danger') : getPhaseColor('purple');
+      const lane2Label = isDanger ? '02 · DIAGNOSTIC & EXCEPTION' : '02 · TRANSFORM & EVALUATION';
+
+      const lane3Stroke = isDark ? 'rgba(63, 185, 80, 0.25)' : '#bbf7d0';
+      const lane3Fill = isDark ? 'none' : 'rgba(22, 163, 74, 0.035)';
+      const lane3Color = getPhaseColor('green');
+
+      svgLanesEl.innerHTML = `
+        <!-- Lane 1 -->
+        <rect x="30" y="45" width="255" height="345" rx="14" fill="${lane1Fill}" stroke="${lane1Stroke}" stroke-dasharray="6 6" stroke-width="1.5" />
+        <text x="45" y="75" fill="${lane1Color}" font-family="'Fira Code', monospace" font-size="11" font-weight="700" letter-spacing="0.08em">01 · SOURCE / DISK</text>
+
+        <!-- Lane 2 -->
+        <rect x="315" y="45" width="575" height="345" rx="14" fill="${lane2Fill}" stroke="${lane2Stroke}" stroke-dasharray="6 6" stroke-width="1.5" />
+        <text x="335" y="75" fill="${lane2Color}" font-family="'Fira Code', monospace" font-size="11" font-weight="700" letter-spacing="0.08em">${lane2Label}</text>
+
+        <!-- Lane 3 -->
+        <rect x="915" y="45" width="255" height="345" rx="14" fill="${lane3Fill}" stroke="${lane3Stroke}" stroke-dasharray="6 6" stroke-width="1.5" />
+        <text x="935" y="75" fill="${lane3Color}" font-family="'Fira Code', monospace" font-size="11" font-weight="700" letter-spacing="0.08em">03 · OUTPUT / VERIFY</text>
+      `;
+    }
+
+    function renderConnectors() {
+      const scenario = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx];
+      const isDanger = scenario.type === 'danger';
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      const trackColor = isDark ? '#1e2a45' : '#e2e8f0';
+
+      let pathsHtml = '';
+
+      // Connector 0 -> 1
+      const c1Color = getPhaseColor(scenario.nodes[1].phase);
+      const c1Marker = getMarkerForPhase(scenario.nodes[1].phase);
+      pathsHtml += `
+        <!-- Connector 0 -> 1 -->
+        <path d="M 270 217.5 L 335 217.5" stroke="${trackColor}" stroke-width="3" stroke-linecap="round" />
+        <path id="conn-0" class="flow-dash" d="M 270 217.5 L 335 217.5" stroke="${c1Color}" stroke-width="2.5" marker-end="${c1Marker}" />
+      `;
+
+      // Connector 1 -> 2
+      const c2Color = getPhaseColor(scenario.nodes[2].phase);
+      const c2Marker = getMarkerForPhase(scenario.nodes[2].phase);
+      pathsHtml += `
+        <!-- Connector 1 -> 2 -->
+        <path d="M 570 217.5 L 635 217.5" stroke="${trackColor}" stroke-width="3" stroke-linecap="round" />
+        <path id="conn-1" class="flow-dash" d="M 570 217.5 L 635 217.5" stroke="${c2Color}" stroke-width="2.5" marker-end="${c2Marker}" />
+      `;
+
+      // Connector 2 -> 3
+      const c3Color = getPhaseColor(scenario.nodes[3].phase);
+      const c3Marker = getMarkerForPhase(scenario.nodes[3].phase);
+
+      if (isDanger) {
+        const loopTrack = isDark ? 'rgba(244, 63, 94, 0.3)' : 'rgba(225, 29, 72, 0.25)';
+        const loopStroke = isDark ? '#f43f5e' : '#e11d48';
+        pathsHtml += `
+          <!-- Error to fix curved loop underneath -->
+          <path d="M 570 217.5 L 635 217.5" stroke="${trackColor}" stroke-width="3" />
+          <path d="M 870 217.5 L 935 217.5" stroke="${trackColor}" stroke-width="3" />
+          <path id="conn-2" class="flow-dash" d="M 870 217.5 L 935 217.5" stroke="${c3Color}" stroke-width="2.5" marker-end="${c3Marker}" />
+          <path d="M 752.5 280 C 752.5 365, 1047.5 365, 1047.5 280" stroke="${loopTrack}" stroke-width="2" stroke-dasharray="5 5" fill="none" />
+          <path class="flow-dash" d="M 752.5 280 C 752.5 365, 1047.5 365, 1047.5 280" stroke="${loopStroke}" stroke-width="2" fill="none" marker-end="url(#arrGreen)" />
+        `;
+      } else {
+        pathsHtml += `
+          <!-- Connector 2 -> 3 -->
+          <path d="M 870 217.5 L 935 217.5" stroke="${trackColor}" stroke-width="3" stroke-linecap="round" />
+          <path id="conn-2" class="flow-dash" d="M 870 217.5 L 935 217.5" stroke="${c3Color}" stroke-width="2.5" marker-end="${c3Marker}" />
+        `;
+      }
+
+      svgConnectorsEl.innerHTML = pathsHtml;
+
+      // Update animateMotion path
+      const routePath = "M 157.5 217.5 L 452.5 217.5 L 752.5 217.5 L 1047.5 217.5";
+      motionAnimEl.setAttribute("path", routePath);
+    }
+
+    function renderNodes() {
+      const scenario = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx];
+      let html = '';
+
+      scenario.nodes.forEach((node, idx) => {
+        const pos = POS_LAYOUT[idx];
+        const chipClass = `chip-${node.phase || 'blue'}`;
+
+        html += `
+          <button class="viz-node-card phase-${node.phase || 'blue'}"
+                  id="nodeCard-${idx}"
+                  style="left: ${pctX(pos.x)}; top: ${pctY(pos.y)}; width: ${pctX(pos.w)}; height: ${pctY(pos.h)};"
+                  onclick="jumpToStep(${idx})"
+                  onmouseenter="onHoverNode(${idx})"
+                  onmouseleave="onLeaveNode(${idx})">
+            <div class="node-header">
+              <span class="node-chip ${chipClass}">${node.badge}</span>
+              <span class="node-step-tag">0${idx + 1}</span>
+            </div>
+            <div class="node-title">${escapeHtml(node.title)}</div>
+            <div class="node-sub">${escapeHtml(node.sub)}</div>
+          </button>
+        `;
+      });
+
+      htmlOverlayEl.innerHTML = html;
+    }
+
+    function renderCodeBlock() {
+      const weekData = CURRICULUM[currentWeekIdx];
+      const scenario = weekData.scenarios[currentScenarioIdx];
+      macFilenameEl.textContent = weekData.filename || `pipeline_week0${weekData.week}.py`;
+
+      let linesHtml = '';
+      scenario.steps.forEach((step, idx) => {
+        const isDanger = step.statusType === 'danger';
+        const lineHtml = tokenizePython(step.codeLine);
+        const badgeClass = step.badgeType || 'chip-blue';
+
+        linesHtml += `
+          <div class="code-line ${isDanger ? 'danger' : ''}" 
+               id="codeLine-${idx}"
+               onclick="jumpToStep(${idx})"
+               onmouseenter="onHoverCodeLine(${idx})"
+               onmouseleave="onLeaveCodeLine(${idx})">
+            <span class="line-no">${idx + 1}</span>
+            <span class="line-content">${lineHtml}</span>
+            <span class="line-badge-tag ${badgeClass}">${step.codeBadge || ''}</span>
+          </div>
+        `;
+      });
+
+      codeLinesWrapEl.innerHTML = linesHtml;
+    }
+
+    function renderScenarioTabs() {
+      const weekData = CURRICULUM[currentWeekIdx];
+      topicBadgeEl.textContent = weekData.badge;
+      topicTitleEl.textContent = `Week ${String(weekData.week).padStart(2, '0')}: ${weekData.title}`;
+
+      scenarioTabsEl.innerHTML = weekData.scenarios.map((sc, i) => `
+        <button class="tab-pill ${i === currentScenarioIdx ? 'active' : ''} ${sc.type === 'danger' ? 'danger' : ''}" 
+                onclick="switchScenario(${i})">
+          <span>${sc.type === 'danger' ? '⚠️' : '⚡'}</span>
+          <span>${sc.name}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderProgressDots() {
+      const scenario = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx];
+      progressDotsEl.innerHTML = scenario.steps.map((_, i) => `
+        <div class="p-dot ${i === currentStepIdx ? 'active' : ''}" onclick="jumpToStep(${i})" title="ขั้นที่ ${i + 1}"></div>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       Interactive State Updates
+       ========================================================================== */
+    function updateUI() {
+      const scenario = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx];
+      const totalSteps = scenario.steps.length;
+      const step = scenario.steps[currentStepIdx];
+      const currentNode = scenario.nodes[currentStepIdx];
+
+      // Stepper Display & Buttons
+      stepDisplayEl.textContent = `${currentStepIdx + 1}/${totalSteps}`;
+      prevBtnEl.disabled = (currentStepIdx === 0);
+      nextBtnEl.disabled = (currentStepIdx === totalSteps - 1);
+
+      // Update Active Node Cards
+      document.querySelectorAll('.viz-node-card').forEach((card, i) => {
+        card.classList.toggle('active', i === currentStepIdx);
+      });
+
+      // Update CodeBlock Active Line
+      document.querySelectorAll('.code-line').forEach((line, i) => {
+        line.classList.toggle('active-line', i === currentStepIdx);
+      });
+
+      // Update Connectors
+      document.querySelectorAll('.flow-dash').forEach((path, i) => {
+        if (i < currentStepIdx) {
+          path.style.opacity = '1';
+        } else {
+          path.style.opacity = '0.4';
+        }
+      });
+
+      // Info Panel Updates
+      phaseBadgeEl.className = `phase-badge chip-${currentNode.phase || 'blue'}`;
+      phaseTextEl.textContent = step.phaseName || `PHASE ${currentStepIdx + 1}`;
+      infoTitleEl.textContent = step.title;
+      infoDescEl.innerHTML = step.desc;
+      
+      // Tip box
+      infoTipTextEl.textContent = step.tip;
+      infoTipEl.className = `info-tip ${step.statusType === 'danger' ? 'danger' : ''}`;
+
+      // Terminal Output
+      termBodyEl.textContent = step.output;
+      termBodyEl.className = `term-body ${step.statusType === 'danger' ? 'danger' : ''}`;
+
+      // Progress dots
+      renderProgressDots();
+    }
+
+    /* ==========================================================================
+       Interactive 2-Way Sync (Code ↔ Diagram)
+       ========================================================================== */
+    function onHoverNode(idx) {
+      const line = document.getElementById(`codeLine-${idx}`);
+      if (line) line.classList.add('hover-sync');
+    }
+
+    function onLeaveNode(idx) {
+      const line = document.getElementById(`codeLine-${idx}`);
+      if (line) line.classList.remove('hover-sync');
+    }
+
+    function onHoverCodeLine(idx) {
+      const node = document.getElementById(`nodeCard-${idx}`);
+      if (node) node.classList.add('hover-sync-node');
+    }
+
+    function onLeaveCodeLine(idx) {
+      const node = document.getElementById(`nodeCard-${idx}`);
+      if (node) node.classList.remove('hover-sync-node');
+    }
+
+    function jumpToStep(idx) {
+      currentStepIdx = idx;
+      stopAutoPlay();
+      updateUI();
+    }
+
+    /* ==========================================================================
+       Playback & Stepper Controls (Auto-Play 2.8s)
+       ========================================================================== */
+    function nextStep() {
+      const totalSteps = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx].steps.length;
+      if (currentStepIdx < totalSteps - 1) {
+        currentStepIdx++;
+        updateUI();
+      } else {
+        stopAutoPlay();
+      }
+    }
+
+    function prevStep() {
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        updateUI();
+      }
+    }
+
+    function resetStep() {
+      currentStepIdx = 0;
+      updateUI();
+    }
+
+    function togglePlay() {
+      if (autoPlayTimer) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      playBtnEl.textContent = '⏸';
+      playBtnEl.classList.add('is-playing');
+
+      const total = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx].steps.length;
+      if (currentStepIdx >= total - 1) {
+        currentStepIdx = 0;
+        updateUI();
+      }
+
+      // Interval 2.8s (Per Skill Principle 9)
+      autoPlayTimer = setInterval(() => {
+        const totalSteps = CURRICULUM[currentWeekIdx].scenarios[currentScenarioIdx].steps.length;
+        if (currentStepIdx < totalSteps - 1) {
+          currentStepIdx++;
+          updateUI();
+        } else {
+          stopAutoPlay();
+        }
+      }, 2800);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+      playBtnEl.textContent = '▶';
+      playBtnEl.classList.remove('is-playing');
+    }
+
+    function switchScenario(idx) {
+      currentScenarioIdx = idx;
+      currentStepIdx = 0;
+      stopAutoPlay();
+      renderScenarioTabs();
+      renderLanes();
+      renderConnectors();
+      renderNodes();
+      renderCodeBlock();
+      updateUI();
+    }
+
+    function onSelectWeek(idx) {
+      currentWeekIdx = parseInt(idx, 10);
+      currentScenarioIdx = 0;
+      currentStepIdx = 0;
+      stopAutoPlay();
+      renderScenarioTabs();
+      renderLanes();
+      renderConnectors();
+      renderNodes();
+      renderCodeBlock();
+      updateUI();
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        nextStep();
+      } else if (e.key === 'ArrowLeft') {
+        prevStep();
+      } else if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'r' || e.key === 'R') {
+        resetStep();
+      }
+    });
+
+    // Check URL parameters (e.g. ?week=4&theme=dark)
+    const urlParams = new URLSearchParams(window.location.search);
+    const weekParam = urlParams.get('week');
+    if (weekParam !== null) {
+      const w = parseInt(weekParam, 10) - 1;
+      if (w >= 0 && w < CURRICULUM.length) {
+        currentWeekIdx = w;
+        weekSelectEl.value = w;
+      }
+    }
+
+    // Initialize Widget
+    initTheme();
+    renderScenarioTabs();
+    renderLanes();
+    renderConnectors();
+    renderNodes();
+    renderCodeBlock();
+    updateUI();
+  </script>
+</body>
+</html>
